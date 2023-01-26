@@ -1,0 +1,13 @@
+[package]
+name = "bouncing-ferris"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+qnxscreen = { path = "../qnxscreen" }
+anyhow = "1.0"
+image = "0.24"
+# We need to manually implement a random backend for QNX
+getrandom = { version = "0.2", features = ["custom"] }
