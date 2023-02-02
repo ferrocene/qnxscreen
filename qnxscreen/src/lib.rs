@@ -20,6 +20,8 @@ use qnxscreen_sys as sys;
 pub enum Error {
     #[error("QNX API error {0}")]
     System(#[from] std::io::Error),
+    #[error("A bad string argument was supplied to the Rust API")]
+    BadStringArgument,
 }
 
 // ============================================================================
@@ -131,7 +133,22 @@ impl Window {
         let rc = unsafe {
             sys::screen_set_window_property_iv(self.0, sys::SCREEN_PROPERTY_USAGE as i32, &value)
         };
-        map_error(rc, || ())
+    }
+
+    /// Set the ID property.
+    //
+    /// This appears in /dev/screen.
+    pub fn set_id(&mut self, id: &str) -> Result<(), Error> {
+        let c_string = std::ffi::CString::new(id).map_err(|_| Error::BadStringArgument)?;
+        let rc = unsafe {
+            sys::screen_set_window_property_cv(
+                self.ptr,
+                sys::SCREEN_PROPERTY_ID_STRING as i32,
+                id.len() as i32,
+                c_string.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
     }
 
     /// Create some buffers.
