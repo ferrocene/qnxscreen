@@ -6,6 +6,8 @@
 //!
 //! Copyright (c) AdaCore, 2023
 
+use std::marker::PhantomData;
+
 use bitflags::bitflags;
 use qnxscreen_sys as sys;
 
@@ -40,7 +42,7 @@ impl Context {
     pub fn new(context_type: ContextType) -> Result<Context, Error> {
         let mut ptr = std::ptr::null_mut();
         let rc = unsafe { sys::screen_create_context(&mut ptr, context_type.bits()) };
-        map_error(rc, || Context(ptr))
+        map_error(rc, || Ok(Context(ptr)))
     }
 
     /// Get the number of displays.
@@ -55,14 +57,24 @@ impl Context {
                 &mut num_displays,
             )
         };
-        map_error(rc, || num_displays)
+        map_error(rc, || Ok(num_displays))
     }
 
     /// Get a window onto this screen.
-    pub fn get_screen_window(&mut self) -> Result<Window, Error> {
+    pub fn create_window<'ctx, 'window>(&'ctx self) -> Result<Window<'window>, Error>
+    where
+        'ctx: 'window,
+    {
         let mut ptr = std::ptr::null_mut();
         let rc = unsafe { sys::screen_create_window(&mut ptr, self.0) };
-        map_error(rc, || Window(ptr))
+        map_error(rc, || {
+            Ok(Window {
+                ptr: ptr as sys::screen_window_t,
+                owned: true,
+                _phantom: PhantomData,
+            })
+        })
+    }
     }
 }
 
@@ -104,9 +116,13 @@ bitflags! {
 /// Represents a Screen Window.
 ///
 /// The C type is `screen_window_t`.
-pub struct Window(sys::screen_window_t);
+pub struct Window<'window> {
+    ptr: sys::screen_window_t,
+    owned: bool,
+    _phantom: PhantomData<&'window sys::screen_context_t>,
+}
 
-impl Window {
+impl<'window> Window<'window> {
     /// Set the swap interval.
     ///
     /// This is the number of Vertical Blanking Intervals that must pass between
@@ -117,12 +133,12 @@ impl Window {
     pub fn set_swap_interval(&mut self, swap_interval: i32) -> Result<(), Error> {
         let rc = unsafe {
             sys::screen_set_window_property_iv(
-                self.0,
+                self.ptr,
                 sys::SCREEN_PROPERTY_SWAP_INTERVAL as i32,
                 &swap_interval,
             )
         };
-        map_error(rc, || ())
+        map_error(rc, || Ok(()))
     }
 
     /// Set the window usage.
@@ -131,8 +147,9 @@ impl Window {
     pub fn set_usage(&mut self, usage_type: UsageType) -> Result<(), Error> {
         let value: i32 = usage_type.bits();
         let rc = unsafe {
-            sys::screen_set_window_property_iv(self.0, sys::SCREEN_PROPERTY_USAGE as i32, &value)
+            sys::screen_set_window_property_iv(self.ptr, sys::SCREEN_PROPERTY_USAGE as i32, &value)
         };
+        map_error(rc, || Ok(()))
     }
 
     /// Set the ID property.
@@ -156,8 +173,8 @@ impl Window {
     /// The buffers are internal to this object, but you can get a reference to
     /// them.
     pub fn create_buffers(&mut self, num_buffers: i32) -> Result<(), Error> {
-        let rc = unsafe { sys::screen_create_window_buffers(self.0, num_buffers) };
-        map_error(rc, || ())
+        let rc = unsafe { sys::screen_create_window_buffers(self.ptr, num_buffers) };
+        map_error(rc, || Ok(()))
     }
 
     /// Set the pixel format for this window.
@@ -166,9 +183,9 @@ impl Window {
     pub fn set_screen_format(&mut self, pixel_format: FormatType) -> Result<(), Error> {
         let value = pixel_format as i32;
         let rc = unsafe {
-            sys::screen_set_window_property_iv(self.0, sys::SCREEN_PROPERTY_FORMAT as i32, &value)
+            sys::screen_set_window_property_iv(self.ptr, sys::SCREEN_PROPERTY_FORMAT as i32, &value)
         };
-        map_error(rc, || ())
+        map_error(rc, || Ok(()))
     }
 
     /// Gets the size of the window.
@@ -176,32 +193,39 @@ impl Window {
         let mut dimensions = [0i32; 2];
         let rc = unsafe {
             sys::screen_get_window_property_iv(
-                self.0,
+                self.ptr,
                 sys::SCREEN_PROPERTY_SIZE as i32,
                 dimensions.as_mut_ptr(),
             )
         };
-        map_error(rc, || Rect {
-            x: 0,
-            y: 0,
-            width: dimensions[0],
-            height: dimensions[1],
+        map_error(rc, || {
+            Ok(Rect {
+                x: 0,
+                y: 0,
+                width: dimensions[0],
+                height: dimensions[1],
+            })
         })
     }
 
     /// Make window content updates visible on the display
-    pub fn post(&mut self, buffer: &Buffer, dirty_rects: &[Rect], flags: PostFlags) -> Result<(), Error> {
+    pub fn post(
+        &mut self,
+        buffer: &Buffer,
+        dirty_rects: &[Rect],
+        flags: PostFlags,
+    ) -> Result<(), Error> {
         let rc = unsafe {
             let rect_ptr = dirty_rects.as_ptr() as *const i32;
             sys::screen_post_window(
-                self.0,
+                self.ptr,
                 buffer.0,
                 dirty_rects.len() as i32,
                 rect_ptr,
-                flags.bits()
+                flags.bits(),
             )
         };
-        map_error(rc, ||())
+        map_error(rc, || Ok(()))
     }
 
     /// Access the buffers associated with this screen.
@@ -210,9 +234,9 @@ impl Window {
         let mut buffers: [sys::screen_buffer_t; 35] = [std::ptr::null_mut(); 35];
         let rc = unsafe {
             sys::screen_get_window_property_pv(
-                self.0,
+                self.ptr,
                 sys::SCREEN_PROPERTY_RENDER_BUFFERS as i32,
-                buffers.as_mut_ptr() as *mut *mut std::ffi::c_void
+                buffers.as_mut_ptr() as *mut *mut std::ffi::c_void,
             )
         };
         map_error(rc, || {
@@ -222,16 +246,18 @@ impl Window {
                     result.push(Buffer(*buffer_ptr))
                 }
             }
-            result
+            Ok(result)
         })
     }
 }
 
-impl Drop for Window {
+impl<'window> Drop for Window<'window> {
     /// Clean up the QNX object. We can assume the pointer is valid.
     fn drop(&mut self) {
-        unsafe {
-            sys::screen_destroy_window(self.0);
+        if self.owned {
+            unsafe {
+                sys::screen_destroy_window(self.ptr);
+            }
         }
     }
 }
@@ -362,7 +388,7 @@ impl Buffer {
                 &mut stride,
             )
         };
-        map_error(rc, || stride as usize)
+        map_error(rc, || Ok(stride as usize))
     }
 
     /// Gets the pointer for this buffer.
@@ -375,8 +401,8 @@ impl Buffer {
                 &mut ptr as *mut *mut u8 as *mut *mut _,
             )
         };
-        map_error(rc, || ptr)
-    } 
+        map_error(rc, || Ok(ptr))
+    }
 }
 
 // ============================================================================
@@ -483,10 +509,10 @@ impl std::fmt::Display for Rect {
 /// from `std::error::last_os_error()`.
 fn map_error<F, T>(code: i32, ok_fn: F) -> Result<T, Error>
 where
-    F: FnOnce() -> T,
+    F: FnOnce() -> Result<T, Error>,
 {
     if code == 0 {
-        Ok(ok_fn())
+        ok_fn()
     } else {
         Err(std::io::Error::last_os_error().into())
     }
