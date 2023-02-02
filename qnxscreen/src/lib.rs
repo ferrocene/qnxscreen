@@ -41,6 +41,7 @@ pub enum Error {
 /// Represents a Screen Context.
 ///
 /// The C type is `screen_context_t`.
+#[derive(Debug)]
 pub struct Context(sys::screen_context_t);
 
 impl Context {
@@ -156,6 +157,7 @@ bitflags! {
 /// Represents a Screen Window.
 ///
 /// The C type is `screen_window_t`.
+#[derive(Debug)]
 pub struct Window<'window> {
     ptr: sys::screen_window_t,
     owned: bool,
@@ -415,6 +417,7 @@ bitflags! {
 /// Represents a piece of memory we can draw on.
 ///
 /// The C type is `screen_buffer_t`.
+#[derive(Debug)]
 pub struct Buffer(sys::screen_buffer_t);
 
 impl Buffer {
