@@ -3,7 +3,7 @@
 //! Ported to Rust by Ferrous Systems
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//! 
+//!
 //! Copyright (c) AdaCore, 2023
 
 use bitflags::bitflags;
@@ -386,7 +386,7 @@ impl Buffer {
 // ============================================================================
 
 /// Describes a rectangular region of the screen.
-/// 
+///
 /// Must be laid out as four integers in memory.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(C)]
@@ -403,7 +403,7 @@ pub struct Rect {
 
 impl Rect {
     /// Make a new rectangle.
-    /// 
+    ///
     /// The rectangle has the given position (of the top-left corner), and the
     /// given width and height.
     pub fn new(top_left: (i32, i32), width: i32, height: i32) -> Self {
@@ -411,7 +411,7 @@ impl Rect {
             x: top_left.0,
             y: top_left.1,
             width,
-            height
+            height,
         }
     }
 
@@ -429,7 +429,7 @@ impl Rect {
     pub fn y1(&self) -> i32 {
         self.y
     }
-    
+
     /// Get the y-coord of the bottom edge
     pub fn y2(&self) -> i32 {
         self.y + self.height
@@ -437,14 +437,14 @@ impl Rect {
 
     // Get the width of the rectangle
     pub fn width(&self) -> i32 {
-        self.width        
+        self.width
     }
 
     // Get the height of the rectangle
     pub fn height(&self) -> i32 {
-        self.height        
+        self.height
     }
-    
+
     /// Calculate the bottom right corner position.
     pub fn bottom_right(&self) -> (i32, i32) {
         (self.x2(), self.y2())
