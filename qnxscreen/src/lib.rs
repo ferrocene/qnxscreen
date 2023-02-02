@@ -11,6 +11,8 @@ use std::marker::PhantomData;
 use bitflags::bitflags;
 use qnxscreen_sys as sys;
 
+pub mod events;
+
 // ============================================================================
 //
 // Error
@@ -20,8 +22,12 @@ use qnxscreen_sys as sys;
 /// The errors this API can produce
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("QNX API error {0}")]
+    #[error("QNX API error")]
     System(#[from] std::io::Error),
+    #[error("Unknown Event Code")]
+    UnknownEvent(i32),
+    #[error("QNX provided a SCREEN_PROPERTY_X we didn't recognise")]
+    UnknownPropertyName(u32),
     #[error("A bad string argument was supplied to the Rust API")]
     BadStringArgument,
 }
@@ -75,6 +81,40 @@ impl Context {
             })
         })
     }
+
+    /// Get an event from the event queue, work out what type it is, and store
+    /// it in a new [`events::EventType`] object.
+    ///
+    /// If there are no events, this function will return `Ok(None)`.
+    pub fn get_event<'ctx>(
+        &'ctx self,
+        timeout: Option<std::time::Duration>,
+    ) -> Result<Option<events::EventType<'ctx>>, Error> {
+        let timeout_ns = timeout.map(|t| t.as_nanos()).unwrap_or(0) as u64;
+        let ev = self.create_event();
+        let rc = unsafe { sys::screen_get_event(self.0, ev.ptr, timeout_ns) };
+        if rc == 0 {
+            ev.get_type()
+        } else {
+            Err(std::io::Error::last_os_error().into())
+        }
+    }
+
+    /// Create a new, empty, event.
+    ///
+    /// The event is associated with this context, to ensure the event is freed before the context is freed, to avoid
+    /// dangling pointers. The C API does not enforce this rule but we do.
+    fn create_event<'ctx>(&'ctx self) -> events::Event<'ctx> {
+        let mut ptr: sys::screen_event_t = std::ptr::null_mut();
+        let rc = unsafe { sys::screen_create_event(&mut ptr) };
+        if rc == 0 {
+            events::Event {
+                ptr,
+                _phantom: PhantomData,
+            }
+        } else {
+            panic!("Failed to create event");
+        }
     }
 }
 
