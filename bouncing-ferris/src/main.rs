@@ -26,11 +26,11 @@ fn main() -> Result<(), anyhow::Error> {
     let image_height = image.height() as i32;
 
     // Create a screen context
-    let mut ctx = qnxscreen::Context::new(
+    let ctx = qnxscreen::Context::new(
         qnxscreen::ContextType::APPLICATION | qnxscreen::ContextType::INPUT_MANAGER,
     )?;
 
-    let mut window = ctx.get_screen_window()?;
+    let mut window = ctx.create_window()?;
 
     // Lock us to 60 fps on a 60 Hz screen
     println!("Set swap interval to 1");
