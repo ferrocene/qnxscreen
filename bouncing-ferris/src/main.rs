@@ -1,5 +1,5 @@
 //! A Rust demo of the QNX Screen API
-//! 
+//!
 //! You get a bouncing Ferris moving around the screen at 1 pixel per frame.
 //!
 //! Copyright (c) Ferrous Systems, 2023
@@ -30,7 +30,7 @@ fn main() -> Result<(), anyhow::Error> {
         qnxscreen::ContextType::APPLICATION | qnxscreen::ContextType::INPUT_MANAGER,
     )?;
 
-    let mut window = ctx.create_window()?;
+    let window = ctx.create_window()?;
 
     // Lock us to 60 fps on a 60 Hz screen
     println!("Set swap interval to 1");

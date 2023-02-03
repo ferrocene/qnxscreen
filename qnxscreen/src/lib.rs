@@ -68,10 +68,7 @@ impl Context {
     }
 
     /// Get a window onto this screen.
-    pub fn create_window<'ctx, 'window>(&'ctx self) -> Result<Window<'window>, Error>
-    where
-        'ctx: 'window,
-    {
+    pub fn create_window<'ctx>(&'ctx self) -> Result<Window<'ctx>, Error> {
         let mut ptr = std::ptr::null_mut();
         let rc = unsafe { sys::screen_create_window(&mut ptr, self.0) };
         map_error(rc, || {
@@ -161,7 +158,7 @@ bitflags! {
 pub struct Window<'window> {
     ptr: sys::screen_window_t,
     owned: bool,
-    _phantom: PhantomData<&'window sys::screen_context_t>,
+    _phantom: PhantomData<&'window Context>,
 }
 
 impl<'window> Window<'window> {
@@ -172,7 +169,7 @@ impl<'window> Window<'window> {
     ///
     /// Set to 1 to get a 1:1 frame sync (i.e. 60 frames/second on a 60 Hz
     /// display).
-    pub fn set_swap_interval(&mut self, swap_interval: i32) -> Result<(), Error> {
+    pub fn set_swap_interval(&self, swap_interval: i32) -> Result<(), Error> {
         let rc = unsafe {
             sys::screen_set_window_property_iv(
                 self.ptr,
@@ -186,7 +183,7 @@ impl<'window> Window<'window> {
     /// Set the window usage.
     ///
     /// Sets the [`sys::SCREEN_PROPERTY_USAGE`] property.
-    pub fn set_usage(&mut self, usage_type: UsageType) -> Result<(), Error> {
+    pub fn set_usage(&self, usage_type: UsageType) -> Result<(), Error> {
         let value: i32 = usage_type.bits();
         let rc = unsafe {
             sys::screen_set_window_property_iv(self.ptr, sys::SCREEN_PROPERTY_USAGE as i32, &value)
@@ -197,7 +194,7 @@ impl<'window> Window<'window> {
     /// Set the ID property.
     //
     /// This appears in /dev/screen.
-    pub fn set_id(&mut self, id: &str) -> Result<(), Error> {
+    pub fn set_id(&self, id: &str) -> Result<(), Error> {
         let c_string = std::ffi::CString::new(id).map_err(|_| Error::BadStringArgument)?;
         let rc = unsafe {
             sys::screen_set_window_property_cv(
@@ -214,7 +211,7 @@ impl<'window> Window<'window> {
     ///
     /// The buffers are internal to this object, but you can get a reference to
     /// them.
-    pub fn create_buffers(&mut self, num_buffers: i32) -> Result<(), Error> {
+    pub fn create_buffers(&self, num_buffers: i32) -> Result<(), Error> {
         let rc = unsafe { sys::screen_create_window_buffers(self.ptr, num_buffers) };
         map_error(rc, || Ok(()))
     }
@@ -222,7 +219,7 @@ impl<'window> Window<'window> {
     /// Set the pixel format for this window.
     ///
     /// Sets the `SCREEN_PROPERTY_FORMAT` property.
-    pub fn set_screen_format(&mut self, pixel_format: FormatType) -> Result<(), Error> {
+    pub fn set_screen_format(&self, pixel_format: FormatType) -> Result<(), Error> {
         let value = pixel_format as i32;
         let rc = unsafe {
             sys::screen_set_window_property_iv(self.ptr, sys::SCREEN_PROPERTY_FORMAT as i32, &value)
@@ -252,7 +249,7 @@ impl<'window> Window<'window> {
 
     /// Make window content updates visible on the display
     pub fn post(
-        &mut self,
+        &self,
         buffer: &Buffer,
         dirty_rects: &[Rect],
         flags: PostFlags,
@@ -261,7 +258,7 @@ impl<'window> Window<'window> {
             let rect_ptr = dirty_rects.as_ptr() as *const i32;
             sys::screen_post_window(
                 self.ptr,
-                buffer.0,
+                buffer.ptr,
                 dirty_rects.len() as i32,
                 rect_ptr,
                 flags.bits(),
@@ -271,7 +268,7 @@ impl<'window> Window<'window> {
     }
 
     /// Access the buffers associated with this screen.
-    pub fn get_buffers(&self) -> Result<Vec<Buffer>, Error> {
+    pub fn get_buffers(&'window self) -> Result<Vec<Buffer<'window>>, Error> {
         // The maximum number of buffers allowed is 35.
         let mut buffers: [sys::screen_buffer_t; 35] = [std::ptr::null_mut(); 35];
         let rc = unsafe {
@@ -285,7 +282,10 @@ impl<'window> Window<'window> {
             let mut result = Vec::new();
             for buffer_ptr in buffers.iter() {
                 if !buffer_ptr.is_null() {
-                    result.push(Buffer(*buffer_ptr))
+                    result.push(Buffer {
+                        ptr: *buffer_ptr,
+                        _phantom: PhantomData,
+                    })
                 }
             }
             Ok(result)
@@ -416,17 +416,23 @@ bitflags! {
 
 /// Represents a piece of memory we can draw on.
 ///
+/// This piece of memory is owned by someone else. It will not free when this
+/// object is dropped.
+///
 /// The C type is `screen_buffer_t`.
 #[derive(Debug)]
-pub struct Buffer(sys::screen_buffer_t);
+pub struct Buffer<'buffer> {
+    ptr: sys::screen_buffer_t,
+    _phantom: PhantomData<&'buffer Window<'buffer>>,
+}
 
-impl Buffer {
+impl<'buffer> Buffer<'buffer> {
     /// Gets the stride-size of this buffer, in bytes.
     pub fn get_stride(&self) -> Result<usize, Error> {
         let mut stride = 0;
         let rc = unsafe {
             sys::screen_get_buffer_property_iv(
-                self.0,
+                self.ptr,
                 sys::SCREEN_PROPERTY_STRIDE as i32,
                 &mut stride,
             )
@@ -439,7 +445,7 @@ impl Buffer {
         let mut ptr: *mut u8 = std::ptr::null_mut();
         let rc = unsafe {
             sys::screen_get_buffer_property_pv(
-                self.0,
+                self.ptr,
                 sys::SCREEN_PROPERTY_POINTER as i32,
                 &mut ptr as *mut *mut u8 as *mut *mut _,
             )
