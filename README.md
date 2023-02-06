@@ -24,6 +24,27 @@ file.
 This is an example application which moves a Ferris image smoothly around the
 screen.
 
+## qnxscreen Changelog
+
+### Unreleased Changes
+
+* None
+
+### v0.5.0
+
+* First release.
+   * Supports basic window operations, and pumping events.
+
+## qnxscreen-sys Changelog
+
+### Unreleased Changes
+
+* None
+
+### v0.5.0
+
+* First release.
+
 ## Licence
 
 Copyright (c) Ferrous Systems, 2023
