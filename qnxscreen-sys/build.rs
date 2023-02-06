@@ -5,7 +5,7 @@
 //! 2. Runs bindgen.
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//! 
+//!
 //! Copyright (c) AdaCore, 2023
 
 use std::env;
@@ -58,6 +58,10 @@ fn main() {
         .allowlist_type("screen_.*")
         .allowlist_function("screen_.*")
         .allowlist_var("SCREEN_.*")
+        .allowlist_var("KEYMOD.*")
+        .allowlist_var("KEY_.*")
+        .allowlist_var("KEYCODE_.*")
+        .allowlist_var("KEYIND_.*")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
