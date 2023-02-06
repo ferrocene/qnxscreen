@@ -492,8 +492,11 @@ impl<'ctx> EventUnrealize<'ctx> {
     /// window object when the object goes out of scope.
     pub fn get_window(&self) -> Result<crate::Window, Error> {
         let ptr = self.0.get_pointer(sys::SCREEN_PROPERTY_WINDOW as i32)?;
+        let Some(nn_ptr) = std::ptr::NonNull::new(ptr as *mut sys::_screen_window) else {
+            return Err(Error::NullPointer);
+        };
         Ok(crate::Window {
-            ptr: ptr as sys::screen_window_t,
+            ptr: nn_ptr,
             owned: false,
             _phantom: PhantomData,
         })

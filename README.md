@@ -29,6 +29,7 @@ screen.
 ### Unreleased Changes
 
 * Add [`KEYCODE_xx`] to `EventKeyboard` along with `get_sym()`, `get_keycap()`, etc.
+* `Window`, `Buffer` and `Context` now hold `std::ptr::NonNull<T>`.
 
 ### v0.5.0
 
