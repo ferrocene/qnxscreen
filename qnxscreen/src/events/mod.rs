@@ -277,6 +277,169 @@ bitflags! {
 /// Represents a `SCREEN_EVENT_KEYBOARD`.
 pub struct EventKeyboard<'ctx>(Event<'ctx>);
 
+impl<'ctx> EventKeyboard<'ctx> {
+    pub const KEYCODE_PAUSE: u32 = sys::KEYCODE_PAUSE as u32;
+    pub const KEYCODE_SCROLL_LOCK: u32 = sys::KEYCODE_SCROLL_LOCK as u32;
+    pub const KEYCODE_PRINT: u32 = sys::KEYCODE_PRINT as u32;
+    pub const KEYCODE_SYSREQ: u32 = sys::KEYCODE_SYSREQ as u32;
+    pub const KEYCODE_BREAK: u32 = sys::KEYCODE_BREAK as u32;
+
+    pub const KEYCODE_ESCAPE: u32 = sys::KEYCODE_ESCAPE as u32;
+    pub const KEYCODE_BACKSPACE: u32 = sys::KEYCODE_BACKSPACE as u32;
+    pub const KEYCODE_TAB: u32 = sys::KEYCODE_TAB as u32;
+    pub const KEYCODE_BACK_TAB: u32 = sys::KEYCODE_BACK_TAB as u32;
+    pub const KEYCODE_RETURN: u32 = sys::KEYCODE_RETURN as u32;
+    pub const KEYCODE_CAPS_LOCK: u32 = sys::KEYCODE_CAPS_LOCK as u32;
+    pub const KEYCODE_LEFT_SHIFT: u32 = sys::KEYCODE_LEFT_SHIFT as u32;
+    pub const KEYCODE_RIGHT_SHIFT: u32 = sys::KEYCODE_RIGHT_SHIFT as u32;
+    pub const KEYCODE_LEFT_CTRL: u32 = sys::KEYCODE_LEFT_CTRL as u32;
+    pub const KEYCODE_RIGHT_CTRL: u32 = sys::KEYCODE_RIGHT_CTRL as u32;
+    pub const KEYCODE_LEFT_ALT: u32 = sys::KEYCODE_LEFT_ALT as u32;
+    pub const KEYCODE_RIGHT_ALT: u32 = sys::KEYCODE_RIGHT_ALT as u32;
+    pub const KEYCODE_MENU: u32 = sys::KEYCODE_MENU as u32;
+    pub const KEYCODE_LEFT_HYPER: u32 = sys::KEYCODE_LEFT_HYPER as u32;
+    pub const KEYCODE_RIGHT_HYPER: u32 = sys::KEYCODE_RIGHT_HYPER as u32;
+
+    pub const KEYCODE_INSERT: u32 = sys::KEYCODE_INSERT as u32;
+    pub const KEYCODE_HOME: u32 = sys::KEYCODE_HOME as u32;
+    pub const KEYCODE_PG_UP: u32 = sys::KEYCODE_PG_UP as u32;
+    pub const KEYCODE_DELETE: u32 = sys::KEYCODE_DELETE as u32;
+    pub const KEYCODE_END: u32 = sys::KEYCODE_END as u32;
+    pub const KEYCODE_PG_DOWN: u32 = sys::KEYCODE_PG_DOWN as u32;
+    pub const KEYCODE_LEFT: u32 = sys::KEYCODE_LEFT as u32;
+    pub const KEYCODE_RIGHT: u32 = sys::KEYCODE_RIGHT as u32;
+    pub const KEYCODE_UP: u32 = sys::KEYCODE_UP as u32;
+    pub const KEYCODE_DOWN: u32 = sys::KEYCODE_DOWN as u32;
+
+    pub const KEYCODE_NUM_LOCK: u32 = sys::KEYCODE_NUM_LOCK as u32;
+    pub const KEYCODE_KP_PLUS: u32 = sys::KEYCODE_KP_PLUS as u32;
+    pub const KEYCODE_KP_MINUS: u32 = sys::KEYCODE_KP_MINUS as u32;
+    pub const KEYCODE_KP_MULTIPLY: u32 = sys::KEYCODE_KP_MULTIPLY as u32;
+    pub const KEYCODE_KP_DIVIDE: u32 = sys::KEYCODE_KP_DIVIDE as u32;
+    pub const KEYCODE_KP_ENTER: u32 = sys::KEYCODE_KP_ENTER as u32;
+    pub const KEYCODE_KP_HOME: u32 = sys::KEYCODE_KP_HOME as u32;
+    pub const KEYCODE_KP_UP: u32 = sys::KEYCODE_KP_UP as u32;
+    pub const KEYCODE_KP_PG_UP: u32 = sys::KEYCODE_KP_PG_UP as u32;
+    pub const KEYCODE_KP_LEFT: u32 = sys::KEYCODE_KP_LEFT as u32;
+    pub const KEYCODE_KP_FIVE: u32 = sys::KEYCODE_KP_FIVE as u32;
+    pub const KEYCODE_KP_RIGHT: u32 = sys::KEYCODE_KP_RIGHT as u32;
+    pub const KEYCODE_KP_END: u32 = sys::KEYCODE_KP_END as u32;
+    pub const KEYCODE_KP_DOWN: u32 = sys::KEYCODE_KP_DOWN as u32;
+    pub const KEYCODE_KP_PG_DOWN: u32 = sys::KEYCODE_KP_PG_DOWN as u32;
+    pub const KEYCODE_KP_INSERT: u32 = sys::KEYCODE_KP_INSERT as u32;
+    pub const KEYCODE_KP_DELETE: u32 = sys::KEYCODE_KP_DELETE as u32;
+
+    pub const KEYCODE_F1: u32 = sys::KEYCODE_F1 as u32;
+    pub const KEYCODE_F2: u32 = sys::KEYCODE_F2 as u32;
+    pub const KEYCODE_F3: u32 = sys::KEYCODE_F3 as u32;
+    pub const KEYCODE_F4: u32 = sys::KEYCODE_F4 as u32;
+    pub const KEYCODE_F5: u32 = sys::KEYCODE_F5 as u32;
+    pub const KEYCODE_F6: u32 = sys::KEYCODE_F6 as u32;
+    pub const KEYCODE_F7: u32 = sys::KEYCODE_F7 as u32;
+    pub const KEYCODE_F8: u32 = sys::KEYCODE_F8 as u32;
+    pub const KEYCODE_F9: u32 = sys::KEYCODE_F9 as u32;
+    pub const KEYCODE_F10: u32 = sys::KEYCODE_F10 as u32;
+    pub const KEYCODE_F11: u32 = sys::KEYCODE_F11 as u32;
+    pub const KEYCODE_F12: u32 = sys::KEYCODE_F12 as u32;
+
+    /// The input device index for this Keyboard Event.
+    pub fn get_device(&self) -> Result<i32, Error> {
+        self.0.get_integer(sys::SCREEN_PROPERTY_DEVICE as i32)
+    }
+
+    /// A single integer that indicates the keyboard cap associated with an
+    /// event.
+    ///
+    /// If you press the `Q` key on a US layout keyboard you will get `0x0071`
+    /// which is the Unicode character *Latin Small Letter Q*. If you hold down
+    /// Shift and press the `Q` key, you still get `0x0071`.
+    ///
+    /// Special keys, like *Up Arrow* or *Page Down* get a value in the `0xF000`
+    /// *Private Use Area* range. See [`Self::KEYCODE_F1`], etc.
+    pub fn get_keycap(&self) -> Result<u32, Error> {
+        self.0
+            .get_integer(sys::SCREEN_PROPERTY_KEY_CAP as i32)
+            .map(|val| val as u32)
+    }
+
+    /// Get the bitmask of keyboard modifiers (Shift, Control, etc) currently
+    /// set.
+    pub fn get_modifiers(&self) -> Result<KeyboardModifiers, Error> {
+        self.0
+            .get_integer(sys::SCREEN_PROPERTY_MODIFIERS as i32)
+            .map(|val| unsafe { KeyboardModifiers::from_bits_unchecked(val) })
+    }
+
+    /// A single integer that indicates the scan code associated with an event.
+    pub fn get_scan(&self) -> Result<i32, Error> {
+        self.0.get_integer(sys::SCREEN_PROPERTY_SCAN as i32)
+    }
+
+    /// A single integer that indicates the symbol associated with an event.
+    ///
+    /// This differs from [`Self::get_keycap`] in that if reflects the state of
+    /// your current modifiers.
+    ///  
+    /// If you press the `Q` key you will get `0x0071` which is the Unicode
+    /// character *Latin Small Letter Q*. If you hold down *Shift*, or turn on
+    /// *Caps Lock*, and then press the `Q` key, you get `0x0051` which is *Latin
+    /// Capital Letter Q*.
+    ///
+    /// Special keys, like *Up Arrow* or *Page Down* get a value in the `0xF000`
+    /// *Private Use Area* range. See [`Self::KEYCODE_F1`], etc.
+    pub fn get_sym(&self) -> Result<Option<char>, Error> {
+        Ok(char::from_u32(
+            self.0.get_integer(sys::SCREEN_PROPERTY_SYM as i32)? as u32,
+        ))
+    }
+}
+
+bitflags! {
+    /// Represents the modifier keys on a keyboard.
+    ///
+    /// Values are from the QNX header file `keycodes.h`.
+    pub struct KeyboardModifiers: i32 {
+        /// Shift is pressed
+        const SHIFT = sys::KEYMOD_SHIFT as i32;
+        /// Ctrl is pressed
+        const CTRL = sys::KEYMOD_CTRL as i32;
+        /// Alt is pressed
+        const ALT = sys::KEYMOD_ALT as i32;
+        /// Altgr is pressed
+        const ALTGR = sys::KEYMOD_ALTGR as i32;
+        /// Shl3 is pressed
+        const SHL3 = sys::KEYMOD_SHL3 as i32;
+        /// Mod6 is pressed
+        const MOD6 = sys::KEYMOD_MOD6 as i32;
+        /// Mod7 is pressed
+        const MOD7 = sys::KEYMOD_MOD7 as i32;
+        /// Mod8 is pressed
+        const MOD8 = sys::KEYMOD_MOD8 as i32;
+        /// Shift Lock is pressed
+        const SHIFT_LOCK = sys::KEYMOD_SHIFT_LOCK as i32;
+        /// Control Lock is pressed
+        const CTRL_LOCK = sys::KEYMOD_CTRL_LOCK as i32;
+        /// Alt Lock is pressed
+        const ALT_LOCK = sys::KEYMOD_ALT_LOCK as i32;
+        /// AltGr Lock is pressed
+        const ALTGR_LOCK = sys::KEYMOD_ALTGR_LOCK as i32;
+        /// SHL3_LOCK is pressed?
+        const SHL3_LOCK = sys::KEYMOD_SHL3_LOCK as i32;
+        /// MOD6_LOCK is pressed?
+        const MOD6_LOCK = sys::KEYMOD_MOD6_LOCK as i32;
+        /// MOD7_LOCK is pressed?
+        const MOD7_LOCK = sys::KEYMOD_MOD7_LOCK as i32;
+        /// MOD8_LOCK is pressed?
+        const MOD8_LOCK = sys::KEYMOD_MOD8_LOCK as i32;
+        /// Caps Lock is pressed
+        const CAPS_LOCK = sys::KEYMOD_CAPS_LOCK as i32;
+        /// Num Lock is pressed
+        const NUM_LOCK = sys::KEYMOD_NUM_LOCK as i32;
+        /// Scroll Lock is pressed
+        const SCROLL_LOCK = sys::KEYMOD_SCROLL_LOCK as i32;
+    }
+}
+
 // ============================================================================
 //
 // EventUser

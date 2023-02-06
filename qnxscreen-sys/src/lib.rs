@@ -1,7 +1,7 @@
 //! Auto-generated bindings for QNX's libscreen.
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//! 
+//!
 //! Copyright (c) AdaCore, 2023
 
 #![allow(non_upper_case_globals)]

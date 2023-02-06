@@ -28,7 +28,7 @@ screen.
 
 ### Unreleased Changes
 
-* None
+* Add [`KEYCODE_xx`] to `EventKeyboard` along with `get_sym()`, `get_keycap()`, etc.
 
 ### v0.5.0
 

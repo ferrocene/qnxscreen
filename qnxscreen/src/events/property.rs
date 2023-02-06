@@ -2,7 +2,8 @@
 
 use crate::sys;
 
-/// The name of the property associated with an [`Event`] of [`EventType::Property`].
+/// The name of the property associated with an [`Event`](super::Event) of
+/// [`EventType::Property`](super::EventType::Property).
 #[derive(Debug, Copy, Clone, PartialEq, Eq, num_derive::FromPrimitive, num_derive::ToPrimitive)]
 #[repr(u32)]
 pub enum Name {

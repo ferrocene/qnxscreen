@@ -7,3 +7,5 @@
 
 // This is the QNX Screen API
 #include <screen/screen.h>
+// This contains KEYCODE_XX macros for decoding Keyboard Events
+#include <sys/keycodes.h>
