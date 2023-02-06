@@ -47,8 +47,8 @@ screen.
 
 ## Licence
 
-Copyright (c) Ferrous Systems, 2023
-Copyright (c) AdaCore, 2023
+* Copyright (c) Ferrous Systems, 2023
+* Copyright (c) AdaCore, 2023
 
 These libraries are distributed under the terms of both the [MIT
 license](./LICENSE-MIT) and the [Apache License (Version
