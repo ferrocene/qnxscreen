@@ -1,6 +1,6 @@
 [package]
 name = "qnxscreen"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 description = "High-level wrapper for the QNX libscreen.so library."
 authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"]
@@ -9,7 +9,7 @@ license = "MIT or Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qnxscreen-sys = { path = "../qnxscreen-sys" }
+qnxscreen-sys = { version = "0.5.0", path = "../qnxscreen-sys" }
 thiserror = "1.0"
 bitflags = "1.3"
 num-traits = "0.2"
