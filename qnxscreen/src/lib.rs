@@ -32,6 +32,8 @@ pub enum Error {
     BadStringArgument,
     #[error("We got a null pointer from the QNX API")]
     NullPointer,
+    #[error("QNX gave us a non-UTF-8 string")]
+    BadString(#[from] std::str::Utf8Error),
 }
 
 // ============================================================================
@@ -74,10 +76,34 @@ impl Context {
         map_error(rc, || Ok(num_displays))
     }
 
-    /// Get a window onto this screen.
+    /// Create a new Application window (of type `SCREEN_APPLICATION_WINDOW`).
     pub fn create_window<'ctx>(&'ctx self) -> Result<Window<'ctx>, Error> {
         let mut ptr = std::ptr::null_mut();
         let rc = unsafe { sys::screen_create_window(&mut ptr, self.0.as_ptr()) };
+        map_error(rc, || {
+            let Some(nn_ptr) = std::ptr::NonNull::new(ptr) else {
+                return Err(Error::NullPointer);
+            };
+            Ok(Window {
+                ptr: nn_ptr,
+                owned: true,
+                _phantom: PhantomData,
+            })
+        })
+    }
+
+    /// Create a new child window.
+    ///
+    /// Associate the child with the same group as a parent application window.
+    pub fn create_child_window<'ctx>(&'ctx self) -> Result<Window<'ctx>, Error> {
+        let mut ptr = std::ptr::null_mut();
+        let rc = unsafe {
+            sys::screen_create_window_type(
+                &mut ptr,
+                self.0.as_ptr(),
+                sys::SCREEN_CHILD_WINDOW as i32,
+            )
+        };
         map_error(rc, || {
             let Some(nn_ptr) = std::ptr::NonNull::new(ptr) else {
                 return Err(Error::NullPointer);
@@ -123,6 +149,14 @@ impl Context {
         } else {
             panic!("Failed to create event");
         }
+    }
+
+    /// Flushes all delayed blits and fills since the last call to this
+    /// function, or since the last call to [`Window::post`].
+    pub fn flush_blits(&self, wait_idle: bool) -> Result<(), Error> {
+        let flags = if wait_idle { sys::SCREEN_WAIT_IDLE } else { 0 };
+        let rc = unsafe { sys::screen_flush_blits(self.0.as_ptr(), flags) };
+        map_error(rc, || Ok(()))
     }
 }
 
@@ -175,6 +209,60 @@ pub struct Window<'window> {
 }
 
 impl<'window> Window<'window> {
+    /// Create a new window group.
+    ///
+    /// Pass `None` to auto-generate a group name, which you can fetch with
+    /// [`Window::get_group_name`].
+    pub fn create_group(&self, group: Option<&str>) -> Result<(), Error> {
+        let rc = if let Some(group_str) = group {
+            // Use the given group name
+            let c_string =
+                std::ffi::CString::new(group_str).map_err(|_| Error::BadStringArgument)?;
+            unsafe { sys::screen_create_window_group(self.ptr.as_ptr(), c_string.as_ptr()) }
+        } else {
+            // Auto-generate a group name
+            unsafe { sys::screen_create_window_group(self.ptr.as_ptr(), std::ptr::null()) }
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Get the group name for this window
+    pub fn get_group_name(&self) -> Result<String, Error> {
+        let mut buffer = [0u8; 64];
+        let rc = unsafe {
+            sys::screen_get_window_property_cv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_GROUP as i32,
+                buffer.len() as i32,
+                buffer.as_mut_ptr(),
+            )
+        };
+        map_error(rc, || {
+            let mut valid_len = 0;
+            for (idx, b) in buffer.iter().enumerate() {
+                if *b == 0 {
+                    valid_len = idx;
+                    break;
+                }
+            }
+            let string_slice = std::str::from_utf8(&buffer[0..valid_len])?;
+            Ok(string_slice.to_owned())
+        })
+    }
+
+    /// Join an existing window group.
+    pub fn join_group(&self, group: &str) -> Result<(), Error> {
+        let c_string = std::ffi::CString::new(group).map_err(|_| Error::BadStringArgument)?;
+        let rc = unsafe { sys::screen_join_window_group(self.ptr.as_ptr(), c_string.as_ptr()) };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Leave a window group.
+    pub fn leave_group(&self) -> Result<(), Error> {
+        let rc = unsafe { sys::screen_leave_window_group(self.ptr.as_ptr()) };
+        map_error(rc, || Ok(()))
+    }
+
     /// Set the swap interval.
     ///
     /// This is the number of Vertical Blanking Intervals that must pass between
@@ -224,6 +312,31 @@ impl<'window> Window<'window> {
         map_error(rc, || Ok(()))
     }
 
+    /// Make a window visible (or not).
+    pub fn set_visible(&self, is_visible: bool) -> Result<(), Error> {
+        let value = is_visible as i32;
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_VISIBLE as i32,
+                &value,
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Set this window to have a solid fill colour.
+    pub fn set_colour(&self, colour: u32) -> Result<(), Error> {
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_COLOR as i32,
+                &colour as *const _ as *const _,
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
     /// Create some buffers.
     ///
     /// The buffers are internal to this object, but you can get a reference to
@@ -258,14 +371,51 @@ impl<'window> Window<'window> {
                 dimensions.as_mut_ptr(),
             )
         };
+        if rc != 0 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+        let mut position = [0i32; 2];
+        let rc = unsafe {
+            sys::screen_get_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_POSITION as i32,
+                position.as_mut_ptr(),
+            )
+        };
         map_error(rc, || {
             Ok(Rect {
-                x: 0,
-                y: 0,
+                x: position[0],
+                y: position[1],
                 width: dimensions[0],
                 height: dimensions[1],
             })
         })
+    }
+
+    /// Sets the size of the window
+    pub fn set_size(&self, width: i32, height: i32) -> Result<(), Error> {
+        let dimensions = [width, height];
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_SIZE as i32,
+                dimensions.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Sets the position of the window
+    pub fn set_position(&self, x: i32, y: i32) -> Result<(), Error> {
+        let dimensions = [x, y];
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_POSITION as i32,
+                dimensions.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
     }
 
     /// Make window content updates visible on the display
