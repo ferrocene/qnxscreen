@@ -185,6 +185,16 @@ impl Context {
         let rc = unsafe { sys::screen_flush_blits(self.0.as_ptr(), flags) };
         map_error(rc, || Ok(()))
     }
+
+    /// Flush the context.
+    ///
+    /// This function flushes any delayed command and causes the contents of
+    /// displays to be updated, when applicable.
+    pub fn flush(&self, wait_idle: bool) -> Result<(), Error> {
+        let flags = if wait_idle { sys::SCREEN_WAIT_IDLE } else { 0 };
+        let rc = unsafe { sys::screen_flush_context(self.0.as_ptr(), flags) };
+        map_error(rc, || Ok(()))
+    }
 }
 
 impl Drop for Context {
