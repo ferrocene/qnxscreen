@@ -199,16 +199,16 @@ bitflags! {
 ///
 /// The C type is `screen_window_t`.
 #[derive(Debug)]
-pub struct Window<'window> {
+pub struct Window<'ctx> {
     ptr: std::ptr::NonNull<sys::_screen_window>,
     /// Is `true` if this window was created with `screen_create_window`, and
     /// hence we must clear up the memory with `screen_destroy_window`. If
     /// `false` if this window was borrowed from an event.
     owned: bool,
-    _phantom: PhantomData<&'window Context>,
+    _phantom: PhantomData<&'ctx Context>,
 }
 
-impl<'window> Window<'window> {
+impl<'ctx> Window<'ctx> {
     /// Create a new window group.
     ///
     /// Pass `None` to auto-generate a group name, which you can fetch with
@@ -439,7 +439,7 @@ impl<'window> Window<'window> {
     }
 
     /// Access the buffers associated with this screen.
-    pub fn get_buffers(&'window self) -> Result<Vec<Buffer<'window>>, Error> {
+    pub fn get_buffers<'window>(&'window self) -> Result<Vec<Buffer<'window>>, Error> {
         // The maximum number of buffers allowed is 35.
         let mut buffers: [sys::screen_buffer_t; 35] = [std::ptr::null_mut(); 35];
         let rc = unsafe {
