@@ -13,6 +13,12 @@ use qnxscreen_sys as sys;
 
 pub mod events;
 
+/// The longest string we expect from QNX
+///
+/// Screen IDs look like
+/// `__scrn-grp-0-000000aa-6eccfee8b7cdb16090070022edf500f2`, which is 54 bytes.
+const MAX_STRING_LENGTH_BYTES: usize = 64;
+
 // ============================================================================
 //
 // Error
@@ -89,16 +95,14 @@ impl Context {
             )
         };
         map_error(rc, || {
-            let mut result = Vec::new();
-            for ptr in pointers.iter().cloned() {
-                if let Some(nn_ptr) = std::ptr::NonNull::new(ptr) {
-                    let display = Display {
-                        ptr: nn_ptr,
-                        _phantom: PhantomData,
-                    };
-                    result.push(display);
-                };
-            }
+            let result: Vec<Display<'ctx>> = pointers
+                .into_iter()
+                .filter_map(|ptr| std::ptr::NonNull::new(ptr))
+                .map(|nn_ptr| Display {
+                    ptr: nn_ptr,
+                    _phantom: PhantomData,
+                })
+                .collect();
             Ok(result)
         })
     }
@@ -295,7 +299,7 @@ impl<'ctx> Window<'ctx> {
 
     /// Get the group name for this window
     pub fn get_group_name(&self) -> Result<String, Error> {
-        let mut buffer = [0u8; 64];
+        let mut buffer = [0u8; MAX_STRING_LENGTH_BYTES];
         let rc = unsafe {
             sys::screen_get_window_property_cv(
                 self.ptr.as_ptr(),
@@ -305,14 +309,7 @@ impl<'ctx> Window<'ctx> {
             )
         };
         map_error(rc, || {
-            let mut valid_len = 0;
-            for (idx, b) in buffer.iter().enumerate() {
-                if *b == 0 {
-                    valid_len = idx;
-                    break;
-                }
-            }
-            let string_slice = std::str::from_utf8(&buffer[0..valid_len])?;
+            let string_slice = buffer_to_str(&buffer)?;
             Ok(string_slice.to_owned())
         })
     }
@@ -381,7 +378,7 @@ impl<'ctx> Window<'ctx> {
 
     /// Get the ID property.
     pub fn get_id(&self) -> Result<String, Error> {
-        let mut buffer = [0u8; 64];
+        let mut buffer = [0u8; MAX_STRING_LENGTH_BYTES];
         let rc = unsafe {
             sys::screen_get_window_property_cv(
                 self.ptr.as_ptr(),
@@ -391,14 +388,7 @@ impl<'ctx> Window<'ctx> {
             )
         };
         map_error(rc, || {
-            let mut valid_len = 0;
-            for (idx, b) in buffer.iter().enumerate() {
-                if *b == 0 {
-                    valid_len = idx;
-                    break;
-                }
-            }
-            let string_slice = std::str::from_utf8(&buffer[0..valid_len])?;
+            let string_slice = buffer_to_str(&buffer)?;
             Ok(string_slice.to_owned())
         })
     }
@@ -462,9 +452,7 @@ impl<'ctx> Window<'ctx> {
                 dimensions.as_mut_ptr(),
             )
         };
-        if rc != 0 {
-            return Err(std::io::Error::last_os_error().into());
-        }
+        let _ = map_error(rc, || Ok(()))?;
         let mut position = [0i32; 2];
         let rc = unsafe {
             sys::screen_get_window_property_iv(
@@ -474,11 +462,13 @@ impl<'ctx> Window<'ctx> {
             )
         };
         map_error(rc, || {
+            let [x, y] = position;
+            let [width, height] = dimensions;
             Ok(Rect {
-                x: position[0],
-                y: position[1],
-                width: dimensions[0],
-                height: dimensions[1],
+                x,
+                y,
+                width,
+                height,
             })
         })
     }
@@ -924,6 +914,13 @@ where
     } else {
         Err(std::io::Error::last_os_error().into())
     }
+}
+
+/// Converts a null-terminated buffer of `u8` to a UTF-8 string slice, if possible.
+fn buffer_to_str(buffer: &[u8]) -> Result<&str, Error> {
+    let valid_len = buffer.iter().position(|byte| *byte == 0).unwrap_or(0);
+    let str_slice = std::str::from_utf8(&buffer[0..valid_len])?;
+    Ok(str_slice)
 }
 
 // ============================================================================
