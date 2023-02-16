@@ -312,6 +312,30 @@ impl<'ctx> Window<'ctx> {
         map_error(rc, || Ok(()))
     }
 
+    /// Get the ID property.
+    pub fn get_id(&self) -> Result<String, Error> {
+        let mut buffer = [0u8; 64];
+        let rc = unsafe {
+            sys::screen_get_window_property_cv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_ID_STRING as i32,
+                buffer.len() as i32,
+                buffer.as_mut_ptr(),
+            )
+        };
+        map_error(rc, || {
+            let mut valid_len = 0;
+            for (idx, b) in buffer.iter().enumerate() {
+                if *b == 0 {
+                    valid_len = idx;
+                    break;
+                }
+            }
+            let string_slice = std::str::from_utf8(&buffer[0..valid_len])?;
+            Ok(string_slice.to_owned())
+        })
+    }
+
     /// Make a window visible (or not).
     pub fn set_visible(&self, is_visible: bool) -> Result<(), Error> {
         let value = is_visible as i32;
@@ -462,6 +486,96 @@ impl<'ctx> Window<'ctx> {
             Ok(result)
         })
     }
+
+    /// Get the current size of the backing buffers
+    pub fn get_buffer_size(&self) -> Result<(i32, i32), Error> {
+        let mut dimensions = [0, 0];
+        let rc = unsafe {
+            sys::screen_get_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_BUFFER_SIZE as i32,
+                dimensions.as_mut_ptr(),
+            )
+        };
+        map_error(rc, || Ok((dimensions[0], dimensions[1])))
+    }
+
+    /// Set the desired size of the backing buffers
+    pub fn set_buffer_size(&self, dimensions: (i32, i32)) -> Result<(), Error> {
+        let dimensions = [dimensions.0, dimensions.1];
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_BUFFER_SIZE as i32,
+                dimensions.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Set the desired size of source viewport within the window buffers.
+    pub fn set_source_size(&self, size: (i32, i32)) -> Result<(), Error> {
+        let size = [size.0, size.1];
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_SOURCE_SIZE as i32,
+                size.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Set the desired position of the source viewport within the window buffers.
+    pub fn set_source_position(&self, position: (i32, i32)) -> Result<(), Error> {
+        let position = [position.0, position.1];
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_SOURCE_POSITION as i32,
+                position.as_ptr(),
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Mark a windows contents as unchanging
+    pub fn set_static(&self, is_static: bool) -> Result<(), Error> {
+        let flag = is_static as i32;
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_STATIC as i32,
+                &flag,
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Set the transparency mode for this window
+    pub fn set_transparency_mode(&self, transparency_mode: TransparencyMode) -> Result<(), Error> {
+        let flag = transparency_mode as i32;
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_TRANSPARENCY as i32,
+                &flag,
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
+
+    /// Set the desired Z-Order of this window
+    pub fn set_zorder(&self, z_value: i32) -> Result<(), Error> {
+        let rc = unsafe {
+            sys::screen_set_window_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_ZORDER as i32,
+                &z_value,
+            )
+        };
+        map_error(rc, || Ok(()))
+    }
 }
 
 impl<'window> Drop for Window<'window> {
@@ -577,6 +691,13 @@ bitflags! {
         /// Indicator that the function blocks until the operation has completed.
         const IDLE = sys::SCREEN_WAIT_IDLE as i32;
     }
+}
+
+/// The kinds of Transparency Mode we support.
+#[repr(i32)]
+pub enum TransparencyMode {
+    SourceColour = sys::SCREEN_TRANSPARENCY_SOURCE_COLOR as i32,
+    SourceOver = sys::SCREEN_TRANSPARENCY_SOURCE_OVER as i32,
 }
 
 // ============================================================================
