@@ -76,6 +76,33 @@ impl Context {
         map_error(rc, || Ok(num_displays))
     }
 
+    /// Get the display objects.
+    pub fn get_displays<'ctx>(&self) -> Result<Vec<Display<'ctx>>, Error> {
+        let count = self.num_displays()? as usize;
+        let mut pointers: Vec<*mut sys::_screen_display> = vec![std::ptr::null_mut(); count];
+
+        let rc = unsafe {
+            sys::screen_get_context_property_pv(
+                self.0.as_ptr(),
+                sys::SCREEN_PROPERTY_DISPLAYS as i32,
+                pointers.as_mut_ptr() as *mut _,
+            )
+        };
+        map_error(rc, || {
+            let mut result = Vec::new();
+            for ptr in pointers.iter().cloned() {
+                if let Some(nn_ptr) = std::ptr::NonNull::new(ptr) {
+                    let display = Display {
+                        ptr: nn_ptr,
+                        _phantom: PhantomData,
+                    };
+                    result.push(display);
+                };
+            }
+            Ok(result)
+        })
+    }
+
     /// Create a new Application window (of type `SCREEN_APPLICATION_WINDOW`).
     pub fn create_window<'ctx>(&'ctx self) -> Result<Window<'ctx>, Error> {
         let mut ptr = std::ptr::null_mut();
@@ -186,6 +213,36 @@ bitflags! {
         const WINDOW_MANAGER = sys::SCREEN_WINDOW_MANAGER_CONTEXT as i32;
         const BUFFER_PROVIDER = sys::SCREEN_BUFFER_PROVIDER_CONTEXT as i32;
         const DISPLAY_MANAGER = sys::SCREEN_DISPLAY_MANAGER_CONTEXT as i32;
+    }
+}
+
+// ============================================================================
+//
+// Screen Display
+//
+// ============================================================================
+
+/// Represents a Screen Display.
+///
+/// The C type is `screen_display_t`.
+#[derive(Debug)]
+pub struct Display<'ctx> {
+    ptr: std::ptr::NonNull<sys::_screen_display>,
+    _phantom: PhantomData<&'ctx Context>,
+}
+
+impl<'ctx> Display<'ctx> {
+    /// Gets the size of the display.
+    pub fn get_size(&self) -> Result<(i32, i32), Error> {
+        let mut dimensions = [0i32; 2];
+        let rc = unsafe {
+            sys::screen_get_display_property_iv(
+                self.ptr.as_ptr(),
+                sys::SCREEN_PROPERTY_SIZE as i32,
+                dimensions.as_mut_ptr(),
+            )
+        };
+        map_error(rc, || Ok((dimensions[0], dimensions[1])))
     }
 }
 
