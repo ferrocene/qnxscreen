@@ -16,6 +16,14 @@
 
 const BAR_WIDTH: i32 = 10;
 
+const EVENT_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
+
+/// This is in A_R_G_B format, so is fully opaque bright yellow.
+const BG_WINDOW_COLOUR: u32 = 0xFF_FF_FF_00;
+
+/// This is in A_R_G_B format, so is fully opaque bright blue.
+const BAR_COLOUR: u32 = 0xFF_00_00_FF;
+
 fn main() -> Result<(), anyhow::Error> {
     let screen_ctx = qnxscreen::Context::new(qnxscreen::ContextType::APPLICATION)?;
 
@@ -39,7 +47,7 @@ fn main() -> Result<(), anyhow::Error> {
             let timeout = if seen_bar && seen_hg {
                 None
             } else {
-                Some(std::time::Duration::from_secs(1))
+                Some(EVENT_TIMEOUT)
             };
             let Some(ev_type) = screen_ctx.get_event(timeout)? else {
                 break 'event;
@@ -49,7 +57,6 @@ fn main() -> Result<(), anyhow::Error> {
                 qnxscreen::events::EventType::Post(post) => {
                     let post_window = post.get_window()?;
                     let id = post_window.get_id()?;
-                    drop(post_window);
                     if id == "bar" {
                         println!("Got a post event for the bar window");
                         seen_bar = true;
@@ -141,8 +148,8 @@ fn create_bg_window(
     // We will use a trick to fill the entire window with a solid color without
     // requiring a large buffer to back it up, and without requiring scaling to
     // be applied by the windowing system. Part of the trick is to set the window
-    // color to the desired yellow.
-    screen_win.set_colour(0xFFFFFF00)?;
+    // color to the desired colour.
+    screen_win.set_colour(BG_WINDOW_COLOUR)?;
     // The second part of the trick is to create a 1x1 buffer. The windowing
     // system currently doesn't support visible windows without at least one
     // buffer, so we will create the smallest buffer possible. The format and
@@ -190,10 +197,10 @@ fn create_bar_window<'ctx>(
     // visibility for child windows is false, and processes creating child
     // windows should not change the visibility themselves.
     screen_win.set_visible(false)?;
-    // Since the vertical bar is solid blue, we will use the same trick we
-    // used for the background window. We start by setting the window color
-    // to blue.
-    screen_win.set_colour(0xff0000ff)?;
+    // Since the vertical bar is a solid colour, we will use the same trick we
+    // used for the background window. We start by setting the window color to
+    // this colour.
+    screen_win.set_colour(BAR_COLOUR)?;
     // Next, we set the buffer size to 1x1.
     screen_win.set_buffer_size((1, 1))?;
     // Finally we position the source rectangle completely outside the buffer.
