@@ -139,6 +139,36 @@ pub enum EventType<'ctx> {
     MultiTouchRelease(EventMultiTouchRelease<'ctx>),
 }
 
+impl<'ctx> std::fmt::Debug for EventType<'ctx> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let label = match self {
+            EventType::Create(_inner) => "EventType::Create",
+            EventType::Property(_inner) => "EventType::Property",
+            EventType::Close(_inner) => "EventType::Close",
+            EventType::Input(_inner) => "EventType::Input",
+            EventType::Jog(_inner) => "EventType::Jog",
+            EventType::Pointer(_inner) => "EventType::Pointer",
+            EventType::Keyboard(_inner) => "EventType::Keyboard",
+            EventType::User(_inner) => "EventType::User",
+            EventType::Post(_inner) => "EventType::Post",
+            EventType::Display(_inner) => "EventType::Display",
+            EventType::Idle(_inner) => "EventType::Idle",
+            EventType::Unrealize(_inner) => "EventType::Unrealize",
+            EventType::Gamepad(_inner) => "EventType::Gamepad",
+            EventType::Joystick(_inner) => "EventType::Joystick",
+            EventType::Device(_inner) => "EventType::Device",
+            EventType::InputControl(_inner) => "EventType::InputControl",
+            EventType::Gesture(_inner) => "EventType::Gesture",
+            EventType::Manager(_inner) => "EventType::Manager",
+            EventType::MultiTouchPretouch(_inner) => "EventType::MultiTouchPretouch",
+            EventType::MultiTouchTouch(_inner) => "EventType::MultiTouchTouch",
+            EventType::MultiTouchMove(_inner) => "EventType::MultiTouchMove",
+            EventType::MultiTouchRelease(_inner) => "EventType::MultiTouchRelease",
+        };
+        write!(f, "{}", label)
+    }
+}
+
 // ============================================================================
 //
 // EventCreate
@@ -457,6 +487,24 @@ pub struct EventUser<'ctx>(Event<'ctx>);
 
 /// Represents a `SCREEN_EVENT_POST`.
 pub struct EventPost<'ctx>(Event<'ctx>);
+
+impl<'ctx> EventPost<'ctx> {
+    /// Get the window associated with this event.
+    ///
+    /// Gives you a pointer to an existing Window, so we do not want to free the
+    /// window object when the object goes out of scope.
+    pub fn get_window(&self) -> Result<crate::Window, Error> {
+        let ptr = self.0.get_pointer(sys::SCREEN_PROPERTY_WINDOW as i32)?;
+        let Some(nn_ptr) = std::ptr::NonNull::new(ptr as *mut sys::_screen_window) else {
+            return Err(Error::NullPointer);
+        };
+        Ok(crate::Window {
+            ptr: nn_ptr,
+            owned: false,
+            _phantom: PhantomData,
+        })
+    }
+}
 
 // ============================================================================
 //
