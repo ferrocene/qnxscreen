@@ -24,12 +24,19 @@ file.
 This is an example application which moves a Ferris image smoothly around the
 screen.
 
+### win-vsync
+
+A Rust port of the QNX C demo of the same name. Shows multiple moving windows on-screen.
+
 ## qnxscreen Changelog
 
 ### Unreleased Changes
 
 * Add [`KEYCODE_xx`] to `EventKeyboard` along with `get_sym()`, `get_keycap()`, etc.
 * `Window`, `Buffer` and `Context` now hold `std::ptr::NonNull<T>`.
+* Add child window support.
+* Add support for setting window position and colour.
+* Add API for getting *Display* information
 
 ### v0.5.0
 
