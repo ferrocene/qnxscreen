@@ -634,7 +634,9 @@ impl<'ctx> Window<'ctx> {
         map_error(rc, || Ok(()))
     }
 
-    /// Unsafe getter for the underlying screen window type.
+    /// Get a pointer for the underlying screen window.
+    ///
+    /// Useful if you need to pass it to the EGL API.
     pub fn get_raw_ptr(&self) -> *const sys::_screen_window {
         self.ptr.as_ptr()
     }
