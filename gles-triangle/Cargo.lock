@@ -75,17 +75,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "egl-init"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "glow",
- "qnx-egl-sys",
- "qnxscreen",
- "thiserror",
-]
-
-[[package]]
 name = "either"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -100,6 +89,17 @@ dependencies = [
  "khronos_api",
  "log",
  "xml-rs",
+]
+
+[[package]]
+name = "gles-triangle"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "glow",
+ "qnx-egl-sys",
+ "qnxscreen",
+ "thiserror",
 ]
 
 [[package]]
