@@ -19,6 +19,11 @@ This is a low-level wrapper, created by running
 [bindgen](https://crates.io/crates/bindgen) against the QNX Screen API header
 file.
 
+### qnx-egl-sys
+
+This is a low-level wrapper, created by running
+[gl_generator](https://crates.io/crates/gl_generator) to produce an EGL 1.5 Rust API.
+
 ### bouncing-ferris
 
 This is an example application which moves a Ferris image smoothly around the
@@ -27,6 +32,10 @@ screen.
 ### win-vsync
 
 A Rust port of the QNX C demo of the same name. Shows multiple moving windows on-screen.
+
+### gles-triangle
+
+Draws a triangle on-screen using `qnxscreen` and `qnx-egl-sys`.
 
 ## qnxscreen Changelog
 
@@ -53,12 +62,22 @@ A Rust port of the QNX C demo of the same name. Shows multiple moving windows on
 
 * First release.
 
+## qnx-egl-sys Changelog
+
+### Unrelease Changes
+
+* First version
+
 ## Licence
 
 * Copyright (c) Ferrous Systems, 2023
 * Copyright (c) AdaCore, 2023
+* Copyright (c) SixtyFPS GmbH, 2023
 
-These libraries are distributed under the terms of both the [MIT
+These libraries and examples are distributed under the terms of both the [MIT
 license](./LICENSE-MIT) and the [Apache License (Version
 2.0)](./LICENCE-APACHE). However portions are derived from the QNX SDP 7.1
 header files and so you must also refer to your licence agreement with QNX.
+
+
+
