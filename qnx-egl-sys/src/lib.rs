@@ -4,7 +4,7 @@ use std::os::raw;
 
 pub type khronos_utime_nanoseconds_t = khronos_uint64_t;
 pub type khronos_uint64_t = u64;
-pub type khronos_ssize_t = raw::c_long;
+pub type khronos_ssize_t = isize;
 pub type EGLint = i32;
 pub type EGLenum = raw::c_uint;
 pub type EGLNativeDisplayType = raw::c_int;
