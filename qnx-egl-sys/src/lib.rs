@@ -26,8 +26,8 @@ pub mod egl {
     include!(concat!(env!("OUT_DIR"), "/egl_bindings.rs"));
 }
 
-pub use egl::types::EGLDisplay;
 pub use egl::types::EGLContext;
+pub use egl::types::EGLDisplay;
 
 #[link(name = "EGL")]
-extern {}
+extern "C" {}

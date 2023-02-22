@@ -2,8 +2,6 @@
 //!
 //!
 //! Copyright (c) SixtyFPS GmbH, 2023
-//!
-//! Copyright (c) AdaCore, 2023
 
 #![deny(warnings)]
 
@@ -12,7 +10,7 @@ use glow::HasContext;
 
 fn main() -> Result<(), anyhow::Error> {
     println!("Rust EGL init demo.");
-    println!("Copyright (c) Ferrous Systems, 2023");
+    println!("Copyright (c) SixtyFPS GmbH, 2023");
 
     // Create a screen context
     let ctx = qnxscreen::Context::new(
@@ -66,24 +64,28 @@ fn main() -> Result<(), anyhow::Error> {
             .expect("Cannot create program");
 
         let (vertex_shader_source, fragment_shader_source) = (
-            r#"#version 300 es
-        const vec2 verts[3] = vec2[3](
-            vec2(0.5f, 1.0f),
-            vec2(0.0f, 0.0f),
-            vec2(1.0f, 0.0f)
-        );
-        out vec2 vert;
-        void main() {
-            vert = verts[gl_VertexID];
-            gl_Position = vec4(vert - 0.5, 0.0, 1.0);
-        }"#,
-            r#"#version 300 es
-        precision mediump float;
-        in vec2 vert;
-        out vec4 color;
-        void main() {
-            color = vec4(vert, 0.5, 1.0);
-        }"#,
+            r#"
+            #version 300 es
+            const vec2 verts[3] = vec2[3](
+                vec2(0.5f, 1.0f),
+                vec2(0.0f, 0.0f),
+                vec2(1.0f, 0.0f)
+            );
+            out vec2 vert;
+            void main() {
+                vert = verts[gl_VertexID];
+                gl_Position = vec4(vert - 0.5, 0.0, 1.0);
+            }
+            "#,
+            r#"
+            #version 300 es
+            precision mediump float;
+            in vec2 vert;
+            out vec4 color;
+            void main() {
+                color = vec4(vert, 0.5, 1.0);
+            }
+            "#,
         );
 
         let shader_sources = [
