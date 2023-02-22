@@ -3,7 +3,7 @@ name = "qnx-egl-sys"
 version = "0.5.0"
 edition = "2021"
 description = "Low-level bindings to QNX's EGL library."
-authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"]
+authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>", "Slint Developers <info@slint-ui.com>"]
 license = "MIT or Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

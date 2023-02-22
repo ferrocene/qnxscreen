@@ -1,7 +1,7 @@
 //! A simple example to show how to set up OpenGL ES rendering
 //!
 //!
-//! Copyright (c) Ferrous Systems, 2023
+//! Copyright (c) SixtyFPS GmbH, 2023
 //!
 //! Copyright (c) AdaCore, 2023
 
