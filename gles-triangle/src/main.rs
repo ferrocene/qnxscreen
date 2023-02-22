@@ -195,7 +195,7 @@ unsafe fn egl_init(
         map_egl_error().context("Could not create EGL context")?;
     }
 
-    let sys_window = window.window();
+    let sys_window = window.get_raw_ptr();
 
     let surface_attrs: [i32; 3] = [
         qnx_egl_sys::egl::RENDER_BUFFER as _,

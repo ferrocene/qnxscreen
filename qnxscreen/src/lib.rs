@@ -635,7 +635,7 @@ impl<'ctx> Window<'ctx> {
     }
 
     /// Unsafe getter for the underlying screen window type.
-    pub unsafe fn window(&self) -> *const sys::_screen_window {
+    pub fn get_raw_ptr(&self) -> *const sys::_screen_window {
         self.ptr.as_ptr()
     }
 }
