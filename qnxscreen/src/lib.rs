@@ -297,6 +297,11 @@ impl<'ctx> Window<'ctx> {
         map_error(rc, || Ok(()))
     }
 
+    /// Get the pointer for this window
+    pub fn get_pointer(&self) -> std::ptr::NonNull<sys::_screen_window> {
+        self.ptr
+    }
+
     /// Get the group name for this window
     pub fn get_group_name(&self) -> Result<String, Error> {
         let mut buffer = [0u8; MAX_STRING_LENGTH_BYTES];
