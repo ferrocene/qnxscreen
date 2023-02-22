@@ -633,6 +633,11 @@ impl<'ctx> Window<'ctx> {
         };
         map_error(rc, || Ok(()))
     }
+
+    /// Unsafe getter for the underlying screen window type.
+    pub unsafe fn window(&self) -> *const sys::_screen_window {
+        self.ptr.as_ptr()
+    }
 }
 
 impl<'window> Drop for Window<'window> {
