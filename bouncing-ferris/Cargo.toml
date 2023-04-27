@@ -2,6 +2,8 @@
 name = "bouncing-ferris"
 version = "0.1.0"
 edition = "2021"
+licence = "MIT or Apache-2.0"
+author = "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
