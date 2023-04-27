@@ -74,10 +74,6 @@ Draws a triangle on-screen using `qnxscreen` and `qnx-egl-sys`.
 * Copyright (c) AdaCore, 2023
 * Copyright (c) SixtyFPS GmbH, 2023
 
-These libraries and examples are distributed under the terms of both the [MIT
-license](./LICENSE-MIT) and the [Apache License (Version
-2.0)](./LICENCE-APACHE). However portions are derived from the QNX SDP 7.1
-header files and so you must also refer to your licence agreement with QNX.
-
-
-
+This work is commercially confidential. Portions are derived from the QNX SDP 7.1
+header files and so you must also refer to your licence agreement with QNX. See
+individual crates for further details.
