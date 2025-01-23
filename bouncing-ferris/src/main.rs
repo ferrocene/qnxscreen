@@ -3,8 +3,6 @@
 //! You get a bouncing Ferris moving around the screen at 1 pixel per frame.
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//!
-//! Copyright (c) AdaCore, 2023
 
 #![deny(warnings)]
 

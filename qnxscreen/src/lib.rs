@@ -3,8 +3,6 @@
 //! Ported to Rust by Ferrous Systems
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//!
-//! Copyright (c) AdaCore, 2023
 
 use std::marker::PhantomData;
 

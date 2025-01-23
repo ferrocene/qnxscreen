@@ -5,8 +5,6 @@
 //! 2. Runs bindgen.
 //!
 //! Copyright (c) Ferrous Systems, 2023
-//!
-//! Copyright (c) AdaCore, 2023
 
 use std::env;
 use std::path::PathBuf;
