@@ -1,0 +1,11 @@
+manifest-version = 1
+
+[products.ferrocene]
+release = "stable-24.11.0"
+packages = [
+    "rustc-${rustc-host}",
+    "rust-std-${rustc-host}",
+    "cargo-${rustc-host}",
+    "llvm-tools-${rustc-host}",
+    "rust-std-aarch64-unknown-nto-qnx710",
+]
