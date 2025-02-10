@@ -11,6 +11,7 @@ pub type EGLNativeDisplayType = raw::c_int;
 pub type EGLNativePixmapType = *const raw::c_void; /* FIXME, should be screen pixmap */
 pub type EGLNativeWindowType = *const qnxscreen_sys::_screen_window;
 
+#[allow(unused_imports)]
 pub mod egl {
     pub type khronos_utime_nanoseconds_t = super::khronos_utime_nanoseconds_t;
     pub type khronos_uint64_t = super::khronos_uint64_t;

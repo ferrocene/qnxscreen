@@ -176,6 +176,7 @@ impl<'ctx> std::fmt::Debug for EventType<'ctx> {
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_CREATE`.
+#[allow(unused)]
 pub struct EventCreate<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -204,6 +205,7 @@ impl<'ctx> EventProperty<'ctx> {
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_CLOSE`.
+#[allow(unused)]
 pub struct EventClose<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -213,6 +215,7 @@ pub struct EventClose<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_INPUT`.
+#[allow(unused)]
 pub struct EventInput<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -222,6 +225,7 @@ pub struct EventInput<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_JOG`.
+#[allow(unused)]
 pub struct EventJog<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -477,6 +481,7 @@ bitflags! {
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_USER`.
+#[allow(unused)]
 pub struct EventUser<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -513,6 +518,7 @@ impl<'ctx> EventPost<'ctx> {
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_DISPLAY`.
+#[allow(unused)]
 pub struct EventDisplay<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -522,6 +528,7 @@ pub struct EventDisplay<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_IDLE`.
+#[allow(unused)]
 pub struct EventIdle<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -558,6 +565,7 @@ impl<'ctx> EventUnrealize<'ctx> {
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_GAMEPAD`.
+#[allow(unused)]
 pub struct EventGamepad<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -567,6 +575,7 @@ pub struct EventGamepad<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_JOYSTICK`.
+#[allow(unused)]
 pub struct EventJoystick<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -576,6 +585,7 @@ pub struct EventJoystick<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_DEVICE`.
+#[allow(unused)]
 pub struct EventDevice<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -585,6 +595,7 @@ pub struct EventDevice<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_INPUTCONTROL`.
+#[allow(unused)]
 pub struct EventInputControl<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -594,6 +605,7 @@ pub struct EventInputControl<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_GESTURE`.
+#[allow(unused)]
 pub struct EventGesture<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -603,6 +615,7 @@ pub struct EventGesture<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_MANAGER`.
+#[allow(unused)]
 pub struct EventManager<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -612,6 +625,7 @@ pub struct EventManager<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_MULTITOUCHPRETOUCH`.
+#[allow(unused)]
 pub struct EventMultiTouchPretouch<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -621,6 +635,7 @@ pub struct EventMultiTouchPretouch<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_MULTITOUCHTOUCH`.
+#[allow(unused)]
 pub struct EventMultiTouchTouch<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -630,6 +645,7 @@ pub struct EventMultiTouchTouch<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_MULTITOUCHMOVE`.
+#[allow(unused)]
 pub struct EventMultiTouchMove<'ctx>(Event<'ctx>);
 
 // ============================================================================
@@ -639,6 +655,7 @@ pub struct EventMultiTouchMove<'ctx>(Event<'ctx>);
 // ============================================================================
 
 /// Represents a `SCREEN_EVENT_MULTITOUCHRELEASE`.
+#[allow(unused)]
 pub struct EventMultiTouchRelease<'ctx>(Event<'ctx>);
 
 // ============================================================================
