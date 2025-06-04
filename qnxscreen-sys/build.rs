@@ -13,11 +13,11 @@ fn main() {
     // Path to QNX
     let qnx_target = std::env::var("QNX_TARGET").expect("QNX_TARGET not set");
     let cargo_target = std::env::var("TARGET").expect("TARGET is not set");
-    let arch = match std::env::var("CARGO_CFG_TARGET_ARCH")
-        .expect("CARGO_CFG_TARGET_ARCH not set")
-        .as_str()
-    {
-        "aarch64" => "aarch64le",
+    let (arch, clang_target, defines) = match cargo_target.as_str() {
+        "aarch64-unknown-nto-qnx700"
+        | "aarch64-unknown-nto-qnx710"
+        | "aarch64-unknown-nto-qnx710_iosock"
+        | "aarch64-unknown-nto-qnx800" => ("aarch64le", "aarch64-unknown-none", "__aarch64__"),
         unknown => {
             panic!("Unhandled arch {:?}", unknown);
         }
@@ -48,7 +48,8 @@ fn main() {
         // Tell it where the QNX source lives
         .clang_arg(format!("-I{}", include_path.display()))
         // Tell it about the CPU architecture
-        .clang_arg(format!("--target={}", cargo_target))
+        .clang_arg(format!("--target={}", clang_target))
+        .clang_arg(format!("-D{}", defines))
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
