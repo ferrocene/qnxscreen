@@ -440,8 +440,14 @@ impl<'ctx> Window<'ctx> {
         map_error(rc, || Ok(()))
     }
 
-    /// Gets the size of the window.
+    /// Gets the position and size of the window.
+    #[deprecated(since = "0.1.0", note = "Despite the name, this function returns size and position. Use `get_rect` instead.")]
     pub fn get_size(&self) -> Result<Rect, Error> {
+        return self.get_rect()
+    }
+
+    /// Gets the position and size of the window.
+    pub fn get_rect(&self) -> Result<Rect, Error> {
         let mut dimensions = [0i32; 2];
         let rc = unsafe {
             sys::screen_get_window_property_iv(
