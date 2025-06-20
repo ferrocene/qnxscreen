@@ -673,6 +673,7 @@ bitflags! {
         const NATIVE = sys::SCREEN_USAGE_NATIVE as i32;
         /// Flag to indicate that OpenGL ES 1.X is used for rendering the buffer
         /// associated with the API object.
+        #[cfg(any(target_env = "nto70", target_env = "nto71"))]
         const OPENGL_ES1 = sys::SCREEN_USAGE_OPENGL_ES1 as i32;
         /// Flag to indicate that OpenGL ES 2.X is used for rendering the buffer
         /// associated with the API object.
