@@ -48,8 +48,8 @@ fn main() -> Result<(), anyhow::Error> {
 
     // How big is the screen?
     println!("Get window size");
-    let dimensions = window.get_size()?;
-    println!("Screen size: {}", dimensions);
+    let window_rect = window.get_rect()?;
+    println!("Screen size: {}", window_rect);
 
     let mut delta_x: i32 = 1;
     let mut delta_y: i32 = 1;
@@ -69,13 +69,13 @@ fn main() -> Result<(), anyhow::Error> {
         if image_pos.x1() == 0 {
             delta_x = 1;
         }
-        if image_pos.x2() == dimensions.width() - 1 {
+        if image_pos.x2() == window_rect.width() - 1 {
             delta_x = -1;
         }
         if image_pos.y1() == 0 {
             delta_y = 1;
         }
-        if image_pos.y2() == dimensions.height() - 1 {
+        if image_pos.y2() == window_rect.height() - 1 {
             delta_y = -1;
         }
 
