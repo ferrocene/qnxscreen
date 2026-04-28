@@ -1,0 +1,3 @@
+[workspace]
+resolver = "3"
+members = ["qnxscreen", "qnxscreen-sys", "bouncing-ferris", "gles-triangle", "qnx-egl-sys", "win-vsync"]

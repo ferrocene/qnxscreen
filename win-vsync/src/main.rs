@@ -131,10 +131,10 @@ fn main() -> Result<(), anyhow::Error> {
 /// the screen. However, it is preferable to make the buffer size match the
 /// on-screen dimensions of the window. Finally, `screen_ctx` should contain the
 /// handle to the screen context to be used to create the application window.
-fn create_bg_window(
-    screen_ctx: &qnxscreen::Context,
+fn create_bg_window<'ctx>(
+    screen_ctx: &'ctx qnxscreen::Context,
     dimensions: (i32, i32),
-) -> Result<qnxscreen::Window, qnxscreen::Error> {
+) -> Result<qnxscreen::Window<'ctx>, qnxscreen::Error> {
     let screen_win = screen_ctx.create_window()?;
     screen_win.create_group(None)?;
     let group_name = screen_win.get_group_name()?;

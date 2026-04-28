@@ -25,6 +25,7 @@ const MAX_STRING_LENGTH_BYTES: usize = 64;
 
 /// The errors this API can produce
 #[derive(Debug, thiserror::Error)]
+#[allow(missing_docs)]
 pub enum Error {
     #[error("QNX API error")]
     System(#[from] std::io::Error),
@@ -203,7 +204,7 @@ impl Drop for Context {
     /// Clean up the QNX object. We can assume the pointer is valid.
     fn drop(&mut self) {
         unsafe {
-            sys::screen_destroy_context(self.0.as_ptr());
+            _ = sys::screen_destroy_context(self.0.as_ptr());
         }
     }
 }
@@ -216,14 +217,23 @@ bitflags! {
     /// let ctx = Context::new(ContextType::APPLICATION | ContextType::INPUT_MANGER)?;
     /// ```
     pub struct ContextType: i32 {
+        /// Equivalent to `SCREEN_APPLICATION_CONTEXT`
         const APPLICATION = sys::SCREEN_APPLICATION_CONTEXT as i32;
+        /// Equivalent to `SCREEN_PROPERTY_CONTEXT`
         const PROPERTY = sys::SCREEN_PROPERTY_CONTEXT as i32;
+        /// Equivalent to `SCREEN_OBJECT_TYPE_CONTEXT`
         const OBJECT_TYPE = sys::SCREEN_OBJECT_TYPE_CONTEXT as i32;
+        /// Equivalent to `SCREEN_INPUT_MANAGER_CONTEXT`
         const INPUT_MANAGER = sys::SCREEN_INPUT_MANAGER_CONTEXT as i32;
+        /// Equivalent to `SCREEN_POWER_MANAGER_CONTEXT`
         const POWER_MANAGER = sys::SCREEN_POWER_MANAGER_CONTEXT as i32;
+        /// Equivalent to `SCREEN_INPUT_PROVIDER_CONTEXT`
         const INPUT_PROVIDER = sys::SCREEN_INPUT_PROVIDER_CONTEXT as i32;
+        /// Equivalent to `SCREEN_WINDOW_MANAGER_CONTEXT`
         const WINDOW_MANAGER = sys::SCREEN_WINDOW_MANAGER_CONTEXT as i32;
+        /// Equivalent to `SCREEN_BUFFER_PROVIDER_CONTEXT`
         const BUFFER_PROVIDER = sys::SCREEN_BUFFER_PROVIDER_CONTEXT as i32;
+        /// Equivalent to `SCREEN_DISPLAY_MANAGER_CONTEXT`
         const DISPLAY_MANAGER = sys::SCREEN_DISPLAY_MANAGER_CONTEXT as i32;
     }
 }
@@ -243,7 +253,7 @@ pub struct Display<'ctx> {
     _phantom: PhantomData<&'ctx Context>,
 }
 
-impl<'ctx> Display<'ctx> {
+impl Display<'_> {
     /// Gets the size of the display.
     pub fn get_size(&self) -> Result<(i32, i32), Error> {
         let mut dimensions = [0i32; 2];
@@ -441,9 +451,12 @@ impl<'ctx> Window<'ctx> {
     }
 
     /// Gets the position and size of the window.
-    #[deprecated(since = "0.1.0", note = "Despite the name, this function returns size and position. Use `get_rect` instead.")]
+    #[deprecated(
+        since = "0.1.0",
+        note = "Despite the name, this function returns size and position. Use `get_rect` instead."
+    )]
     pub fn get_size(&self) -> Result<Rect, Error> {
-        return self.get_rect()
+        return self.get_rect();
     }
 
     /// Gets the position and size of the window.
@@ -456,7 +469,7 @@ impl<'ctx> Window<'ctx> {
                 dimensions.as_mut_ptr(),
             )
         };
-        let _ = map_error(rc, || Ok(()))?;
+        map_error(rc, || Ok(()))?;
         let mut position = [0i32; 2];
         let rc = unsafe {
             sys::screen_get_window_property_iv(
@@ -506,7 +519,7 @@ impl<'ctx> Window<'ctx> {
     /// Make window content updates visible on the display
     pub fn post(
         &self,
-        buffer: &Buffer,
+        buffer: &Buffer<'_, '_>,
         dirty_rects: &[Rect],
         flags: PostFlags,
     ) -> Result<(), Error> {
@@ -524,7 +537,7 @@ impl<'ctx> Window<'ctx> {
     }
 
     /// Access the buffers associated with this screen.
-    pub fn get_buffers<'window>(&'window self) -> Result<Vec<Buffer<'window>>, Error> {
+    pub fn get_buffers<'window>(&'window self) -> Result<Vec<Buffer<'window, 'ctx>>, Error> {
         // The maximum number of buffers allowed is 35.
         let mut buffers: [sys::screen_buffer_t; 35] = [std::ptr::null_mut(); 35];
         let rc = unsafe {
@@ -646,12 +659,12 @@ impl<'ctx> Window<'ctx> {
     }
 }
 
-impl<'window> Drop for Window<'window> {
+impl Drop for Window<'_> {
     /// Clean up the QNX object. We can assume the pointer is valid.
     fn drop(&mut self) {
         if self.owned {
             unsafe {
-                sys::screen_destroy_window(self.ptr.as_ptr());
+                _ = sys::screen_destroy_window(self.ptr.as_ptr());
             }
         }
     }
@@ -726,31 +739,57 @@ bitflags! {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(i32)]
 pub enum FormatType {
+    /// Equivalent to `SCREEN_FORMAT_BYTE`
     BYTE = sys::SCREEN_FORMAT_BYTE as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBA4444`
     RGBA4444 = sys::SCREEN_FORMAT_RGBA4444 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBX4444`
     RGBX4444 = sys::SCREEN_FORMAT_RGBX4444 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBA5551`
     RGBA5551 = sys::SCREEN_FORMAT_RGBA5551 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBX5551`
     RGBX5551 = sys::SCREEN_FORMAT_RGBX5551 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGB565`
     RGB565 = sys::SCREEN_FORMAT_RGB565 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGB888`
     RGB888 = sys::SCREEN_FORMAT_RGB888 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBA8888`
     RGBA8888 = sys::SCREEN_FORMAT_RGBA8888 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBX8888`
     RGBX8888 = sys::SCREEN_FORMAT_RGBX8888 as i32,
+    /// Equivalent to `SCREEN_FORMAT_YVU9`
     YVU9 = sys::SCREEN_FORMAT_YVU9 as i32,
+    /// Equivalent to `SCREEN_FORMAT_YUV420`
     YUV420 = sys::SCREEN_FORMAT_YUV420 as i32,
+    /// Equivalent to `SCREEN_FORMAT_NV12`
     NV12 = sys::SCREEN_FORMAT_NV12 as i32,
+    /// Equivalent to `SCREEN_FORMAT_YV12`
     YV12 = sys::SCREEN_FORMAT_YV12 as i32,
+    /// Equivalent to `SCREEN_FORMAT_UYVY`
     UYVY = sys::SCREEN_FORMAT_UYVY as i32,
+    /// Equivalent to `SCREEN_FORMAT_YUY2`
     YUY2 = sys::SCREEN_FORMAT_YUY2 as i32,
+    /// Equivalent to `SCREEN_FORMAT_YVYU`
     YVYU = sys::SCREEN_FORMAT_YVYU as i32,
+    /// Equivalent to `SCREEN_FORMAT_V422`
     V422 = sys::SCREEN_FORMAT_V422 as i32,
+    /// Equivalent to `SCREEN_FORMAT_AYUV`
     AYUV = sys::SCREEN_FORMAT_AYUV as i32,
+    /// Equivalent to `SCREEN_FORMAT_NV16`
     NV16 = sys::SCREEN_FORMAT_NV16 as i32,
+    /// Equivalent to `SCREEN_FORMAT_P010`
     P010 = sys::SCREEN_FORMAT_P010 as i32,
+    /// Equivalent to `SCREEN_FORMAT_BGRA8888`
     BGRA8888 = sys::SCREEN_FORMAT_BGRA8888 as i32,
+    /// Equivalent to `SCREEN_FORMAT_BGRX8888`
     BGRX8888 = sys::SCREEN_FORMAT_BGRX8888 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBA1010102`
     RGBA1010102 = sys::SCREEN_FORMAT_RGBA1010102 as i32,
+    /// Equivalent to `SCREEN_FORMAT_RGBX1010102`
     RGBX1010102 = sys::SCREEN_FORMAT_RGBX1010102 as i32,
+    /// Equivalent to `SCREEN_FORMAT_BGRA1010102`
     BGRA1010102 = sys::SCREEN_FORMAT_BGRA1010102 as i32,
+    /// Equivalent to `SCREEN_FORMAT_BGRX1010102`
     BGRX1010102 = sys::SCREEN_FORMAT_BGRX1010102 as i32,
 }
 
@@ -758,14 +797,16 @@ bitflags! {
     /// The flags we can give to the [`Window::post`] function.
     pub struct PostFlags: i32 {
         /// Indicator that the function blocks until the operation has completed.
-        const IDLE = sys::SCREEN_WAIT_IDLE as i32;
+        const IDLE = sys::SCREEN_WAIT_IDLE;
     }
 }
 
 /// The kinds of Transparency Mode we support.
 #[repr(i32)]
 pub enum TransparencyMode {
+    /// Equivalent to `SCREEN_TRANSPARENCY_SOURCE_COLOR`
     SourceColour = sys::SCREEN_TRANSPARENCY_SOURCE_COLOR as i32,
+    /// Equivalent to `SCREEN_TRANSPARENCY_SOURCE_OVER`
     SourceOver = sys::SCREEN_TRANSPARENCY_SOURCE_OVER as i32,
 }
 
@@ -782,12 +823,12 @@ pub enum TransparencyMode {
 ///
 /// The C type is `screen_buffer_t`.
 #[derive(Debug)]
-pub struct Buffer<'buffer> {
+pub struct Buffer<'window, 'ctx> {
     ptr: std::ptr::NonNull<sys::_screen_buffer>,
-    _phantom: PhantomData<&'buffer Window<'buffer>>,
+    _phantom: PhantomData<&'window Window<'ctx>>,
 }
 
-impl<'buffer> Buffer<'buffer> {
+impl Buffer<'_, '_> {
     /// Gets the stride-size of this buffer, in bytes.
     pub fn get_stride(&self) -> Result<usize, Error> {
         let mut stride = 0;
@@ -871,12 +912,12 @@ impl Rect {
         self.y + self.height
     }
 
-    // Get the width of the rectangle
+    /// Get the width of the rectangle
     pub fn width(&self) -> i32 {
         self.width
     }
 
-    // Get the height of the rectangle
+    /// Get the height of the rectangle
     pub fn height(&self) -> i32 {
         self.height
     }
@@ -900,7 +941,7 @@ impl Rect {
 }
 
 impl std::fmt::Display for Rect {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}x{}@{}x{}", self.width, self.height, self.x, self.y)
     }
 }

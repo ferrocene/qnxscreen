@@ -31,4 +31,4 @@ pub use egl::types::EGLContext;
 pub use egl::types::EGLDisplay;
 
 #[link(name = "EGL")]
-extern "C" {}
+unsafe extern "C" {}

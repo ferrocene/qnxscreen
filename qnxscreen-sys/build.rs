@@ -52,7 +52,7 @@ fn main() {
         .clang_arg(format!("-D{}", defines))
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // Only include the screen API
         .allowlist_type("screen_.*")
         .allowlist_function("screen_.*")

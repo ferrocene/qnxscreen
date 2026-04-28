@@ -70,9 +70,5 @@ Draws a triangle on-screen using `qnxscreen` and `qnx-egl-sys`.
 
 ## Licence
 
-* Copyright (c) Ferrous Systems, 2023
+* Copyright (c) Ferrous Systems, 2023-2026
 * Copyright (c) SixtyFPS GmbH, 2023
-
-This work is commercially confidential. Portions are derived from the QNX SDP 7.1
-header files and so you must also refer to your licence agreement with QNX. See
-individual crates for further details.
