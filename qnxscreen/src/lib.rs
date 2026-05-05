@@ -313,7 +313,7 @@ impl<'ctx> Window<'ctx> {
                 self.ptr.as_ptr(),
                 sys::SCREEN_PROPERTY_GROUP as i32,
                 buffer.len() as i32,
-                buffer.as_mut_ptr(),
+                buffer.as_mut_ptr().cast(),
             )
         };
         map_error(rc, || {
@@ -392,7 +392,7 @@ impl<'ctx> Window<'ctx> {
                 self.ptr.as_ptr(),
                 sys::SCREEN_PROPERTY_ID_STRING as i32,
                 buffer.len() as i32,
-                buffer.as_mut_ptr(),
+                buffer.as_mut_ptr().cast(),
             )
         };
         map_error(rc, || {
