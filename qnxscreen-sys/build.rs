@@ -14,6 +14,9 @@ fn main() {
     let qnx_target = std::env::var("QNX_TARGET").expect("QNX_TARGET not set");
     let cargo_target = std::env::var("TARGET").expect("TARGET is not set");
     let (arch, clang_target, defines) = match cargo_target.as_str() {
+        "x86_64-pc-nto-qnx710" | "x86_64-pc-nto-qnx710_iosock" => {
+            ("x86_64", "x86_64-unknown-none", "__X86_64__")
+        }
         "aarch64-unknown-nto-qnx700"
         | "aarch64-unknown-nto-qnx710"
         | "aarch64-unknown-nto-qnx710_iosock"
