@@ -1,14 +1,13 @@
 [package]
 name = "gles-triangle"
-version = "0.1.0"
 edition = "2024"
-authors = ["Slint Developers <info@slint-ui.com>"]
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qnxscreen = { path = "../qnxscreen" }
-qnx-egl-sys = { path = "../qnx-egl-sys" }
+qnxscreen = { version = "0.6", path = "../qnxscreen" }
+qnx-egl-sys = { version = "0.5", path = "../qnx-egl-sys" }
 anyhow = "1.0"
 glow = "0.12.1"
 thiserror = "2"

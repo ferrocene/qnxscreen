@@ -1,13 +1,12 @@
 [package]
 name = "qnxscreen-sys"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2024"
 description = "Low-level wrapper for the QNX libscreen.so library."
 authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"]
 license = "MIT or Apache-2.0"
-publish = false
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/ferrocene/qnxscreen"
+readme = "README.md"
 
 [dependencies]
 

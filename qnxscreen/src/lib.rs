@@ -1,8 +1,38 @@
 //! QNX Screen API
 //!
-//! Ported to Rust by Ferrous Systems
+//! This is a high-level wrapper for the QNX Screen API. You can make a screen
+//! context object, then create window objects using that, then call various methods
+//! on your window objects.
 //!
-//! Copyright (c) Ferrous Systems, 2023
+//! Start by creating a [`Context`] object. From that you can create a
+//! [`Window`] and from that you can create [`Buffer`].
+//!
+//! ```rust
+//! let ctx = qnxscreen::Context::new(
+//!     qnxscreen::ContextType::APPLICATION | qnxscreen::ContextType::INPUT_MANAGER,
+//! )?;
+//!
+//! let window = ctx.create_window()?;
+//! window.set_swap_interval(1)?;
+//! window.set_usage(qnxscreen::UsageType::NATIVE | qnxscreen::UsageType::WRITE)?;
+//! window.create_buffers(2)?;
+//! window.set_screen_format(qnxscreen::FormatType::RGBA8888)?;
+//! let window_rect = window.get_rect()?;
+//! println!("Screen size: {}", window_rect);
+//! let buffers = window.get_buffers()?;
+//! ```
+//!
+//! This crate was developed using the `aarch64-unknown-nto-qnx710` target in
+//! Ferrocene, but may also work with the other Ferrocene QNX targets and with the
+//! Tier 3 QNX targets in upstream Rust.
+//!
+//! This crate uses `qnxscreen-sys` and that will require you to have sourced your QNX
+//! SDP development environment (e.g. `source ~/qnx710/qnxsdp-env.sh`) before you
+//! build it. You must also have the relevant Screen components installed using the
+//! QNX Software Manager.
+//! Ported to Rust by Ferrous Systems.
+//!
+//! Copyright (c) Ferrous Systems, 2023-2026
 
 use std::marker::PhantomData;
 

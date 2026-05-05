@@ -7,68 +7,52 @@ It is targeted at QNX SDP 7.1, and is tested using the Raspberry Pi 4 BSP.
 
 ## Components
 
-### qnxscreen
+### [qnxscreen](./qnxscreen/)
 
 This is a high-level wrapper for the QNX Screen API. You can make a screen
 context object, then create window objects using that, then call various methods
 on your window objects.
 
-### qnxscreen-sys
+### [qnxscreen-sys](./qnxscreen-sys/)
 
 This is a low-level wrapper, created by running
 [bindgen](https://crates.io/crates/bindgen) against the QNX Screen API header
 file.
 
-### qnx-egl-sys
+### [qnx-egl-sys](./qnx-egl-sys)
 
 This is a low-level wrapper, created by running
 [gl_generator](https://crates.io/crates/gl_generator) to produce an EGL 1.5 Rust API.
 
-### bouncing-ferris
+### [bouncing-ferris](./bouncing-ferris)
 
 This is an example application which moves a Ferris image smoothly around the
 screen.
 
-### win-vsync
+### [win-vsync](./win-vsync)
 
 A Rust port of the QNX C demo of the same name. Shows multiple moving windows on-screen.
 
-### gles-triangle
+### [gles-triangle](./gles-triangle)
 
 Draws a triangle on-screen using `qnxscreen` and `qnx-egl-sys`.
 
-## qnxscreen Changelog
+## License
 
-### Unreleased Changes
+* Copyright (c) Ferrous Systems
+* Copyright (c) SixtyFPS GmbH
 
-* Add [`KEYCODE_xx`] to `EventKeyboard` along with `get_sym()`, `get_keycap()`, etc.
-* `Window`, `Buffer` and `Context` now hold `std::ptr::NonNull<T>`.
-* Add child window support.
-* Add support for setting window position and colour.
-* Add API for getting *Display* information
+Unless otherwise stated, the software in this repository is licensed under either of
 
-### v0.5.0
+- Apache License, Version 2.0 ([LICENSE-APACHE](../LICENSE-APACHE) or
+    <http://www.apache.org/licenses/LICENSE-2.0>)
 
-* First release.
-   * Supports basic window operations, and pumping events.
+- MIT license ([LICENSE-MIT](../LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
-## qnxscreen-sys Changelog
+at your option.
 
-### Unreleased Changes
+### Contribution
 
-* None
-
-### v0.5.0
-
-* First release.
-
-## qnx-egl-sys Changelog
-
-### Unrelease Changes
-
-* First version
-
-## Licence
-
-* Copyright (c) Ferrous Systems, 2023-2026
-* Copyright (c) SixtyFPS GmbH, 2023
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+licensed as above, without any additional terms or conditions.

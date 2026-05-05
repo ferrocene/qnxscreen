@@ -1,6 +1,6 @@
 //! Auto-generated bindings for QNX's libscreen.
 //!
-//! Copyright (c) Ferrous Systems, 2023
+//! Copyright (c) Ferrous Systems, 2023-2026
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
