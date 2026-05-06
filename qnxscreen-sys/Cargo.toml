@@ -1,12 +1,12 @@
 [package]
-name = "qnxscreen-sys"
-version = "0.6.0"
-edition = "2024"
-description = "Low-level wrapper for the QNX libscreen.so library."
 authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"]
-license = "MIT or Apache-2.0"
-repository = "https://github.com/ferrocene/qnxscreen"
+description = "Low-level wrapper for the QNX libscreen.so library."
+edition = "2024"
+license.workspace = true
+name = "qnxscreen-sys"
 readme = "README.md"
+repository.workspace = true
+version = "0.6.0"
 
 [dependencies]
 

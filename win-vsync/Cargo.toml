@@ -1,8 +1,9 @@
 [package]
-name = "win-vsync"
 edition = "2024"
 license-file = "LICENSE.md"
+name = "win-vsync"
 publish = false
+repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

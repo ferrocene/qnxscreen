@@ -1,8 +1,9 @@
 [package]
-name = "bouncing-ferris"
 edition = "2024"
-license = "MIT or Apache-2.0"
+license.workspace = true
+name = "bouncing-ferris"
 publish = false
+repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

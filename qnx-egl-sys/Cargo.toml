@@ -1,12 +1,12 @@
 [package]
-name = "qnx-egl-sys"
-version = "0.5.0"
-edition = "2021"
-description = "Low-level bindings to QNX's EGL library."
 authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>", "Slint Developers <info@slint-ui.com>"]
-license = "MIT or Apache-2.0"
-repository = "https://github.com/ferrocene/qnxscreen"
+description = "Low-level bindings to QNX's EGL library."
+edition = "2021"
+license.workspace = true
+name = "qnx-egl-sys"
 readme = "README.md"
+repository.workspace = true
+version = "0.5.0"
 
 [dependencies]
 qnxscreen-sys = { version = "0.6", path = "../qnxscreen-sys" }
