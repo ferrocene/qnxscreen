@@ -1,15 +1,16 @@
 [package]
+edition = "2024"
+license.workspace = true
 name = "bouncing-ferris"
-version = "0.1.0"
-edition = "2021"
-license = "MIT or Apache-2.0"
-authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>"]
+publish = false
+repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-qnxscreen = { path = "../qnxscreen" }
+qnxscreen = { version = "0.6", path = "../qnxscreen" }
 anyhow = "1.0"
 image = "0.24"
 # We need to manually implement a random backend for QNX
 getrandom = { version = "0.2", features = ["custom"] }
+rand = "0.10.1"

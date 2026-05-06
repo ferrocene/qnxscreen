@@ -6,6 +6,7 @@ use crate::sys;
 /// [`EventType::Property`](super::EventType::Property).
 #[derive(Debug, Copy, Clone, PartialEq, Eq, num_derive::FromPrimitive, num_derive::ToPrimitive)]
 #[repr(u32)]
+#[allow(missing_docs)]
 pub enum Name {
     AlphaMode = sys::SCREEN_PROPERTY_ALPHA_MODE,
     Gamma = sys::SCREEN_PROPERTY_GAMMA,

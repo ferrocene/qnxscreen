@@ -37,12 +37,12 @@ fn main() -> Result<(), anyhow::Error> {
 
     // How big is the screen?
     println!("Get window size");
-    let dimensions = window.get_size()?;
+    let dimensions = window.get_rect()?;
     println!("Screen size: {}", dimensions);
 
-    unsafe {
-        let (egl_display, egl_context, egl_surface) = egl_init(&window)?;
+    let (egl_display, egl_context, egl_surface) = egl_init(&window)?;
 
+    unsafe {
         println!("Making EGL window surface current");
         let result =
             qnx_egl_sys::egl::MakeCurrent(egl_display, egl_surface, egl_surface, egl_context);
@@ -131,7 +131,7 @@ fn main() -> Result<(), anyhow::Error> {
     }
 }
 
-unsafe fn egl_init(
+fn egl_init(
     window: &qnxscreen::Window,
 ) -> Result<
     (
@@ -141,14 +141,15 @@ unsafe fn egl_init(
     ),
     anyhow::Error,
 > {
-    let egl_display = qnx_egl_sys::egl::GetDisplay(qnx_egl_sys::egl::DEFAULT_DISPLAY);
+    let egl_display = unsafe { qnx_egl_sys::egl::GetDisplay(qnx_egl_sys::egl::DEFAULT_DISPLAY) };
 
     if egl_display == qnx_egl_sys::egl::NO_DISPLAY {
         map_egl_error().context("Could not get EGL default display")?;
     }
 
-    let result =
-        qnx_egl_sys::egl::Initialize(egl_display, core::ptr::null_mut(), core::ptr::null_mut());
+    let result = unsafe {
+        qnx_egl_sys::egl::Initialize(egl_display, core::ptr::null_mut(), core::ptr::null_mut())
+    };
     check_egl_error(result).context("Error initializing EGL")?;
 
     let config_attrs: [i32; 15] = [
@@ -172,13 +173,15 @@ unsafe fn egl_init(
     let mut egl_config: qnx_egl_sys::egl::types::EGLConfig = std::ptr::null();
     let mut egl_config_count = 0;
 
-    let result = qnx_egl_sys::egl::ChooseConfig(
-        egl_display,
-        config_attrs.as_ptr(),
-        (&mut egl_config) as _,
-        1,
-        &mut egl_config_count,
-    );
+    let result = unsafe {
+        qnx_egl_sys::egl::ChooseConfig(
+            egl_display,
+            config_attrs.as_ptr(),
+            (&mut egl_config) as _,
+            1,
+            &mut egl_config_count,
+        )
+    };
     check_egl_error(result).context("Error Choosing EGL configuration")?;
 
     let context_attrs: [i32; 3] = [
@@ -187,12 +190,14 @@ unsafe fn egl_init(
         qnx_egl_sys::egl::NONE as _,
     ];
 
-    let egl_context = qnx_egl_sys::egl::CreateContext(
-        egl_display,
-        egl_config,
-        qnx_egl_sys::egl::NO_CONTEXT,
-        context_attrs.as_ptr(),
-    );
+    let egl_context = unsafe {
+        qnx_egl_sys::egl::CreateContext(
+            egl_display,
+            egl_config,
+            qnx_egl_sys::egl::NO_CONTEXT,
+            context_attrs.as_ptr(),
+        )
+    };
     if egl_context == qnx_egl_sys::egl::NO_CONTEXT {
         map_egl_error().context("Could not create EGL context")?;
     }
@@ -205,12 +210,14 @@ unsafe fn egl_init(
         qnx_egl_sys::egl::NONE as _,
     ];
 
-    let egl_surface = qnx_egl_sys::egl::CreateWindowSurface(
-        egl_display,
-        egl_config,
-        sys_window,
-        surface_attrs.as_ptr(),
-    );
+    let egl_surface = unsafe {
+        qnx_egl_sys::egl::CreateWindowSurface(
+            egl_display,
+            egl_config,
+            sys_window,
+            surface_attrs.as_ptr(),
+        )
+    };
 
     if egl_surface == qnx_egl_sys::egl::NO_SURFACE {
         map_egl_error().context("Could not create EGL window surface")?;
@@ -223,9 +230,13 @@ unsafe fn egl_init(
 enum EGLError {
     #[error("The last function succeeded without error.")]
     Success,
-    #[error("EGL is not initialized, or could not be initialized, for the specified EGL display connection.")]
+    #[error(
+        "EGL is not initialized, or could not be initialized, for the specified EGL display connection."
+    )]
     NotInitialized,
-    #[error("EGL cannot access a requested resource (for example a context is bound in another thread).")]
+    #[error(
+        "EGL cannot access a requested resource (for example a context is bound in another thread)."
+    )]
     BadAccess,
     #[error("EGL failed to allocate resources for the requested operation.")]
     BadAlloc,
@@ -235,13 +246,19 @@ enum EGLError {
     BadContext,
     #[error("An EGLConfig argument does not name a valid EGL frame buffer configuration.")]
     BadConfig,
-    #[error("The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.")]
+    #[error(
+        "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid."
+    )]
     BadCurrentSurface,
     #[error("An EGLDisplay argument does not name a valid EGL display connection.")]
     BadDisplay,
-    #[error("An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.")]
+    #[error(
+        "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering."
+    )]
     BadSurface,
-    #[error("Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).")]
+    #[error(
+        "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface)."
+    )]
     BadMatch,
     #[error("One or more argument values are invalid.")]
     BadParameter,
@@ -249,7 +266,9 @@ enum EGLError {
     BadNativePixmap,
     #[error("A NativeWindowType argument does not refer to a valid native window.")]
     BadNativeWindow,
-    #[error("A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering.")]
+    #[error(
+        "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering."
+    )]
     ContextLost,
 }
 

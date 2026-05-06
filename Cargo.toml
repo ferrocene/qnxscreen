@@ -1,0 +1,7 @@
+[workspace]
+resolver = "3"
+members = ["qnxscreen", "qnxscreen-sys", "bouncing-ferris", "gles-triangle", "qnx-egl-sys", "win-vsync"]
+
+[workspace.package]
+license = "MIT or Apache-2.0"
+repository = "https://github.com/ferrocene/qnxscreen"

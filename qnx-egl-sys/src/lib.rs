@@ -1,3 +1,7 @@
+//! Auto-generated bindings for QNX's OpenGL APIs.
+//!
+//! Copyright (c) SixtyFPS GmbH
+
 #![allow(non_camel_case_types)]
 
 use std::os::raw;
@@ -31,4 +35,4 @@ pub use egl::types::EGLContext;
 pub use egl::types::EGLDisplay;
 
 #[link(name = "EGL")]
-extern "C" {}
+unsafe extern "C" {}

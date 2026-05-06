@@ -5,7 +5,7 @@ use std::marker::PhantomData;
 use bitflags::bitflags;
 use num_traits::FromPrimitive;
 
-use crate::{map_error, sys, Error};
+use crate::{Error, map_error, sys};
 
 pub mod property;
 
@@ -98,7 +98,7 @@ impl<'ctx> Event<'ctx> {
     }
 }
 
-impl<'ctx> Drop for Event<'ctx> {
+impl Drop for Event<'_> {
     fn drop(&mut self) {
         let rc = unsafe { sys::screen_destroy_event(self.ptr) };
         if rc != 0 {
@@ -114,6 +114,7 @@ impl<'ctx> Drop for Event<'ctx> {
 // ============================================================================
 
 /// The set of types of events that we know about.
+#[allow(missing_docs)]
 pub enum EventType<'ctx> {
     Create(EventCreate<'ctx>),
     Property(EventProperty<'ctx>),
@@ -139,8 +140,8 @@ pub enum EventType<'ctx> {
     MultiTouchRelease(EventMultiTouchRelease<'ctx>),
 }
 
-impl<'ctx> std::fmt::Debug for EventType<'ctx> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl std::fmt::Debug for EventType<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let label = match self {
             EventType::Create(_inner) => "EventType::Create",
             EventType::Property(_inner) => "EventType::Property",
@@ -188,7 +189,8 @@ pub struct EventCreate<'ctx>(Event<'ctx>);
 /// Represents a `SCREEN_EVENT_PROPERTY`.
 pub struct EventProperty<'ctx>(Event<'ctx>);
 
-impl<'ctx> EventProperty<'ctx> {
+impl EventProperty<'_> {
+    /// Get the name (`SCREEN_PROPERTY_NAME`) of this Event Property
     pub fn get_name(&self) -> Result<property::Name, Error> {
         let int_value = self.0.get_integer(sys::SCREEN_PROPERTY_NAME as i32)? as u32;
         match property::Name::from_u32(int_value) {
@@ -237,7 +239,7 @@ pub struct EventJog<'ctx>(Event<'ctx>);
 /// Represents a `SCREEN_EVENT_POINTER`.
 pub struct EventPointer<'ctx>(Event<'ctx>);
 
-impl<'ctx> EventPointer<'ctx> {
+impl EventPointer<'_> {
     /// A bitmask indicating which buttons are pressed.
     pub fn get_buttons(&self) -> Result<MouseButtons, Error> {
         self.0
@@ -311,70 +313,71 @@ bitflags! {
 /// Represents a `SCREEN_EVENT_KEYBOARD`.
 pub struct EventKeyboard<'ctx>(Event<'ctx>);
 
-impl<'ctx> EventKeyboard<'ctx> {
-    pub const KEYCODE_PAUSE: u32 = sys::KEYCODE_PAUSE as u32;
-    pub const KEYCODE_SCROLL_LOCK: u32 = sys::KEYCODE_SCROLL_LOCK as u32;
-    pub const KEYCODE_PRINT: u32 = sys::KEYCODE_PRINT as u32;
-    pub const KEYCODE_SYSREQ: u32 = sys::KEYCODE_SYSREQ as u32;
-    pub const KEYCODE_BREAK: u32 = sys::KEYCODE_BREAK as u32;
+#[allow(missing_docs)]
+impl EventKeyboard<'_> {
+    pub const KEYCODE_PAUSE: u32 = sys::KEYCODE_PAUSE;
+    pub const KEYCODE_SCROLL_LOCK: u32 = sys::KEYCODE_SCROLL_LOCK;
+    pub const KEYCODE_PRINT: u32 = sys::KEYCODE_PRINT;
+    pub const KEYCODE_SYSREQ: u32 = sys::KEYCODE_SYSREQ;
+    pub const KEYCODE_BREAK: u32 = sys::KEYCODE_BREAK;
 
-    pub const KEYCODE_ESCAPE: u32 = sys::KEYCODE_ESCAPE as u32;
-    pub const KEYCODE_BACKSPACE: u32 = sys::KEYCODE_BACKSPACE as u32;
-    pub const KEYCODE_TAB: u32 = sys::KEYCODE_TAB as u32;
-    pub const KEYCODE_BACK_TAB: u32 = sys::KEYCODE_BACK_TAB as u32;
-    pub const KEYCODE_RETURN: u32 = sys::KEYCODE_RETURN as u32;
-    pub const KEYCODE_CAPS_LOCK: u32 = sys::KEYCODE_CAPS_LOCK as u32;
-    pub const KEYCODE_LEFT_SHIFT: u32 = sys::KEYCODE_LEFT_SHIFT as u32;
-    pub const KEYCODE_RIGHT_SHIFT: u32 = sys::KEYCODE_RIGHT_SHIFT as u32;
-    pub const KEYCODE_LEFT_CTRL: u32 = sys::KEYCODE_LEFT_CTRL as u32;
-    pub const KEYCODE_RIGHT_CTRL: u32 = sys::KEYCODE_RIGHT_CTRL as u32;
-    pub const KEYCODE_LEFT_ALT: u32 = sys::KEYCODE_LEFT_ALT as u32;
-    pub const KEYCODE_RIGHT_ALT: u32 = sys::KEYCODE_RIGHT_ALT as u32;
-    pub const KEYCODE_MENU: u32 = sys::KEYCODE_MENU as u32;
-    pub const KEYCODE_LEFT_HYPER: u32 = sys::KEYCODE_LEFT_HYPER as u32;
-    pub const KEYCODE_RIGHT_HYPER: u32 = sys::KEYCODE_RIGHT_HYPER as u32;
+    pub const KEYCODE_ESCAPE: u32 = sys::KEYCODE_ESCAPE;
+    pub const KEYCODE_BACKSPACE: u32 = sys::KEYCODE_BACKSPACE;
+    pub const KEYCODE_TAB: u32 = sys::KEYCODE_TAB;
+    pub const KEYCODE_BACK_TAB: u32 = sys::KEYCODE_BACK_TAB;
+    pub const KEYCODE_RETURN: u32 = sys::KEYCODE_RETURN;
+    pub const KEYCODE_CAPS_LOCK: u32 = sys::KEYCODE_CAPS_LOCK;
+    pub const KEYCODE_LEFT_SHIFT: u32 = sys::KEYCODE_LEFT_SHIFT;
+    pub const KEYCODE_RIGHT_SHIFT: u32 = sys::KEYCODE_RIGHT_SHIFT;
+    pub const KEYCODE_LEFT_CTRL: u32 = sys::KEYCODE_LEFT_CTRL;
+    pub const KEYCODE_RIGHT_CTRL: u32 = sys::KEYCODE_RIGHT_CTRL;
+    pub const KEYCODE_LEFT_ALT: u32 = sys::KEYCODE_LEFT_ALT;
+    pub const KEYCODE_RIGHT_ALT: u32 = sys::KEYCODE_RIGHT_ALT;
+    pub const KEYCODE_MENU: u32 = sys::KEYCODE_MENU;
+    pub const KEYCODE_LEFT_HYPER: u32 = sys::KEYCODE_LEFT_HYPER;
+    pub const KEYCODE_RIGHT_HYPER: u32 = sys::KEYCODE_RIGHT_HYPER;
 
-    pub const KEYCODE_INSERT: u32 = sys::KEYCODE_INSERT as u32;
-    pub const KEYCODE_HOME: u32 = sys::KEYCODE_HOME as u32;
-    pub const KEYCODE_PG_UP: u32 = sys::KEYCODE_PG_UP as u32;
-    pub const KEYCODE_DELETE: u32 = sys::KEYCODE_DELETE as u32;
-    pub const KEYCODE_END: u32 = sys::KEYCODE_END as u32;
-    pub const KEYCODE_PG_DOWN: u32 = sys::KEYCODE_PG_DOWN as u32;
-    pub const KEYCODE_LEFT: u32 = sys::KEYCODE_LEFT as u32;
-    pub const KEYCODE_RIGHT: u32 = sys::KEYCODE_RIGHT as u32;
-    pub const KEYCODE_UP: u32 = sys::KEYCODE_UP as u32;
-    pub const KEYCODE_DOWN: u32 = sys::KEYCODE_DOWN as u32;
+    pub const KEYCODE_INSERT: u32 = sys::KEYCODE_INSERT;
+    pub const KEYCODE_HOME: u32 = sys::KEYCODE_HOME;
+    pub const KEYCODE_PG_UP: u32 = sys::KEYCODE_PG_UP;
+    pub const KEYCODE_DELETE: u32 = sys::KEYCODE_DELETE;
+    pub const KEYCODE_END: u32 = sys::KEYCODE_END;
+    pub const KEYCODE_PG_DOWN: u32 = sys::KEYCODE_PG_DOWN;
+    pub const KEYCODE_LEFT: u32 = sys::KEYCODE_LEFT;
+    pub const KEYCODE_RIGHT: u32 = sys::KEYCODE_RIGHT;
+    pub const KEYCODE_UP: u32 = sys::KEYCODE_UP;
+    pub const KEYCODE_DOWN: u32 = sys::KEYCODE_DOWN;
 
-    pub const KEYCODE_NUM_LOCK: u32 = sys::KEYCODE_NUM_LOCK as u32;
-    pub const KEYCODE_KP_PLUS: u32 = sys::KEYCODE_KP_PLUS as u32;
-    pub const KEYCODE_KP_MINUS: u32 = sys::KEYCODE_KP_MINUS as u32;
-    pub const KEYCODE_KP_MULTIPLY: u32 = sys::KEYCODE_KP_MULTIPLY as u32;
-    pub const KEYCODE_KP_DIVIDE: u32 = sys::KEYCODE_KP_DIVIDE as u32;
-    pub const KEYCODE_KP_ENTER: u32 = sys::KEYCODE_KP_ENTER as u32;
-    pub const KEYCODE_KP_HOME: u32 = sys::KEYCODE_KP_HOME as u32;
-    pub const KEYCODE_KP_UP: u32 = sys::KEYCODE_KP_UP as u32;
-    pub const KEYCODE_KP_PG_UP: u32 = sys::KEYCODE_KP_PG_UP as u32;
-    pub const KEYCODE_KP_LEFT: u32 = sys::KEYCODE_KP_LEFT as u32;
-    pub const KEYCODE_KP_FIVE: u32 = sys::KEYCODE_KP_FIVE as u32;
-    pub const KEYCODE_KP_RIGHT: u32 = sys::KEYCODE_KP_RIGHT as u32;
-    pub const KEYCODE_KP_END: u32 = sys::KEYCODE_KP_END as u32;
-    pub const KEYCODE_KP_DOWN: u32 = sys::KEYCODE_KP_DOWN as u32;
-    pub const KEYCODE_KP_PG_DOWN: u32 = sys::KEYCODE_KP_PG_DOWN as u32;
-    pub const KEYCODE_KP_INSERT: u32 = sys::KEYCODE_KP_INSERT as u32;
-    pub const KEYCODE_KP_DELETE: u32 = sys::KEYCODE_KP_DELETE as u32;
+    pub const KEYCODE_NUM_LOCK: u32 = sys::KEYCODE_NUM_LOCK;
+    pub const KEYCODE_KP_PLUS: u32 = sys::KEYCODE_KP_PLUS;
+    pub const KEYCODE_KP_MINUS: u32 = sys::KEYCODE_KP_MINUS;
+    pub const KEYCODE_KP_MULTIPLY: u32 = sys::KEYCODE_KP_MULTIPLY;
+    pub const KEYCODE_KP_DIVIDE: u32 = sys::KEYCODE_KP_DIVIDE;
+    pub const KEYCODE_KP_ENTER: u32 = sys::KEYCODE_KP_ENTER;
+    pub const KEYCODE_KP_HOME: u32 = sys::KEYCODE_KP_HOME;
+    pub const KEYCODE_KP_UP: u32 = sys::KEYCODE_KP_UP;
+    pub const KEYCODE_KP_PG_UP: u32 = sys::KEYCODE_KP_PG_UP;
+    pub const KEYCODE_KP_LEFT: u32 = sys::KEYCODE_KP_LEFT;
+    pub const KEYCODE_KP_FIVE: u32 = sys::KEYCODE_KP_FIVE;
+    pub const KEYCODE_KP_RIGHT: u32 = sys::KEYCODE_KP_RIGHT;
+    pub const KEYCODE_KP_END: u32 = sys::KEYCODE_KP_END;
+    pub const KEYCODE_KP_DOWN: u32 = sys::KEYCODE_KP_DOWN;
+    pub const KEYCODE_KP_PG_DOWN: u32 = sys::KEYCODE_KP_PG_DOWN;
+    pub const KEYCODE_KP_INSERT: u32 = sys::KEYCODE_KP_INSERT;
+    pub const KEYCODE_KP_DELETE: u32 = sys::KEYCODE_KP_DELETE;
 
-    pub const KEYCODE_F1: u32 = sys::KEYCODE_F1 as u32;
-    pub const KEYCODE_F2: u32 = sys::KEYCODE_F2 as u32;
-    pub const KEYCODE_F3: u32 = sys::KEYCODE_F3 as u32;
-    pub const KEYCODE_F4: u32 = sys::KEYCODE_F4 as u32;
-    pub const KEYCODE_F5: u32 = sys::KEYCODE_F5 as u32;
-    pub const KEYCODE_F6: u32 = sys::KEYCODE_F6 as u32;
-    pub const KEYCODE_F7: u32 = sys::KEYCODE_F7 as u32;
-    pub const KEYCODE_F8: u32 = sys::KEYCODE_F8 as u32;
-    pub const KEYCODE_F9: u32 = sys::KEYCODE_F9 as u32;
-    pub const KEYCODE_F10: u32 = sys::KEYCODE_F10 as u32;
-    pub const KEYCODE_F11: u32 = sys::KEYCODE_F11 as u32;
-    pub const KEYCODE_F12: u32 = sys::KEYCODE_F12 as u32;
+    pub const KEYCODE_F1: u32 = sys::KEYCODE_F1;
+    pub const KEYCODE_F2: u32 = sys::KEYCODE_F2;
+    pub const KEYCODE_F3: u32 = sys::KEYCODE_F3;
+    pub const KEYCODE_F4: u32 = sys::KEYCODE_F4;
+    pub const KEYCODE_F5: u32 = sys::KEYCODE_F5;
+    pub const KEYCODE_F6: u32 = sys::KEYCODE_F6;
+    pub const KEYCODE_F7: u32 = sys::KEYCODE_F7;
+    pub const KEYCODE_F8: u32 = sys::KEYCODE_F8;
+    pub const KEYCODE_F9: u32 = sys::KEYCODE_F9;
+    pub const KEYCODE_F10: u32 = sys::KEYCODE_F10;
+    pub const KEYCODE_F11: u32 = sys::KEYCODE_F11;
+    pub const KEYCODE_F12: u32 = sys::KEYCODE_F12;
 
     /// The input device index for this Keyboard Event.
     pub fn get_device(&self) -> Result<i32, Error> {
@@ -498,7 +501,7 @@ impl<'ctx> EventPost<'ctx> {
     ///
     /// Gives you a pointer to an existing Window, so we do not want to free the
     /// window object when the object goes out of scope.
-    pub fn get_window(&self) -> Result<crate::Window, Error> {
+    pub fn get_window(&self) -> Result<crate::Window<'ctx>, Error> {
         let ptr = self.0.get_pointer(sys::SCREEN_PROPERTY_WINDOW as i32)?;
         let Some(nn_ptr) = std::ptr::NonNull::new(ptr as *mut sys::_screen_window) else {
             return Err(Error::NullPointer);
@@ -545,7 +548,7 @@ impl<'ctx> EventUnrealize<'ctx> {
     ///
     /// Gives you a pointer to an existing Window, so we do not want to free the
     /// window object when the object goes out of scope.
-    pub fn get_window(&self) -> Result<crate::Window, Error> {
+    pub fn get_window(&self) -> Result<crate::Window<'ctx>, Error> {
         let ptr = self.0.get_pointer(sys::SCREEN_PROPERTY_WINDOW as i32)?;
         let Some(nn_ptr) = std::ptr::NonNull::new(ptr as *mut sys::_screen_window) else {
             return Err(Error::NullPointer);
