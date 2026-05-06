@@ -24,6 +24,10 @@ Licensed under either of
 
 at your option.
 
+Note that this licence applies to the contents of this directory alone, and not
+the auto-generated APIs (which remain under the same licence as the QNX header
+files they were generated from).
+
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
