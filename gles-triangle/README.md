@@ -11,7 +11,7 @@ SDP development environment (e.g. `source ~/qnx710/qnxsdp-env.sh`) before you
 build it. You must also have the relevant Screen components installed using the
 QNX Software Manager.
 
-## Building with Ferrocene
+## Building for AArch64 QNX Neutrino 7.1.0 with Ferrocene
 
 ```console
 $ source ~/qnx710/qnxsdp-env.sh 
@@ -23,12 +23,7 @@ You then need to copy `../target/aarch64-unknown-nto-qnx710/debug/gles-triangle`
 
 ## Building with Rust
 
-```console
-$ source ~/qnx710/qnxsdp-env.sh 
-$ cargo +nightly build --target aarch64-unknown-nto-qnx710 -Zbuild-std
-```
-
-Running the binary is as per the Ferrocene instructions.
+To build this binary using upstream Rust, please refer to the [target documentation](https://doc.rust-lang.org/stable/rustc/platform-support/nto-qnx.html).
 
 ## License
 
